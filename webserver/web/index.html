@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Page</title>
+    <script>
+        function login() {
+            // Lấy giá trị từ form
+            var username = document.getElementById('username').value;
+            var password = document.getElementById('password').value;
+
+            // Kiểm tra tài khoản và mật khẩu
+            if (username === 'admin' && password === '123') {
+                // Đăng nhập thành công, chuyển hướng đến welcome.html
+                window.location.href = 'welcome.html';
+            } else {
+                // Xử lý khi đăng nhập không thành công
+                alert('Invalid username or password');
+            }
+        }
+    </script>
+</head>
+<body>
+    <h2>Login</h2>
+    <form>
+        <label for="username">Username:</label><br>
+        <input type="text" id="username" name="username"><br>
+        <label for="password">Password:</label><br>
+        <input type="password" id="password" name="password"><br><br>
+        <input type="button" value="Login" onclick="login()">
+    </form>
+</body>
+</html>

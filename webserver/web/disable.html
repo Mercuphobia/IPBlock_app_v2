@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Network Topology</title>
+    <link rel="stylesheet" href="./css/main.css">
+    <link rel="stylesheet" href="./libs/bootstrap.min.css">
+    <link rel="stylesheet" href="./libs/disable.css">
+    <script src="./libs/bootstrap.min.js"></script>
+    <style>
+        /* Custom styles for the Enable and Disable buttons */
+        .btn-enable {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .btn-enable:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+
+        .btn-disable {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .btn-disable:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+
+        .json-list-item {
+            background-color: #f9f9f9;
+            padding: 10px;
+            margin-bottom: 5px;
+            border-radius: 3px;
+            border: 1px solid #ddd;
+        }
+    </style>
+</head>
+
+<body>
+    <section>
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="#">Navbar</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav">
+                        <li class="nav-item">
+                            <a class="nav-link active" aria-current="page" href="welcome.html">Home</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="mesh.html">Mesh</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="disable.html">Disable</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </section>
+
+    <section>
+        <div class="container custom">
+            <div class="row">
+
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="url">URL:</label>
+                        <input type="text" id="url" class="form-control" placeholder="example.com">
+                    </div>
+                    <div class="form-group">
+                        <label for="start-time">Start Time:</label>
+                        <select id="start-day" class="form-control">
+                            <option value="Monday">Monday</option>
+                            <option value="Tuesday">Tuesday</option>
+                            <option value="Wednesday">Wednesday</option>
+                            <option value="Thursday">Thursday</option>
+                            <option value="Friday">Friday</option>
+                            <option value="Saturday">Saturday</option>
+                            <option value="Sunday">Sunday</option>
+                        </select>
+                        <input type="time" id="start-time" class="form-control">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="end-time">End Time:</label>
+                        <select id="end-day" class="form-control">
+                            <option value="Monday">Monday</option>
+                            <option value="Tuesday">Tuesday</option>
+                            <option value="Wednesday">Wednesday</option>
+                            <option value="Thursday">Thursday</option>
+                            <option value="Friday">Friday</option>
+                            <option value="Saturday">Saturday</option>
+                            <option value="Sunday">Sunday</option>
+                        </select>
+                        <input type="time" id="end-time" class="form-control">
+                    </div>
+
+                    <button class="btn btn-add" onclick="addUrl()">Add</button>
+                    <button class="btn btn-confirm" onclick="confirm()">Confirm</button>
+
+                    <div class="mt-3">
+                        <button id="enableBtn" class="btn btn-enable"
+                            onclick="toggleEnableDisable(true)">Enable</button>
+                        <button id="disableBtn" class="btn btn-disable" onclick="toggleEnableDisable(false)"
+                            disabled>Disable</button>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="url-list" id="url-list">
+                        <h4>Added URLs:</h4>
+                        <div id="url-items"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- list block -->
+        <div class="container custom">
+            <div class="row">
+                <div id="file-content" class="mt-4">
+                    <h4>LIST BLOCK WEB:</h4>
+                    <pre id="file-data"></pre>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section>
+        <!-- Overlay -->
+        <div id="overlay" style="display: none;" class="overlay">
+            <div class="message-box">
+                <h5 id="loadingMessage">Please wait a moment !!!</h5>
+            </div>
+        </div>
+    </section>
+
+    <script>
+
+        function addUrl() {
+            const url = document.getElementById('url').value;
+            const startDay = document.getElementById('start-day').value;
+            const startTime = document.getElementById('start-time').value;
+            const endDay = document.getElementById('end-day').value;
+            const endTime = document.getElementById('end-time').value;
+
+            if (!url || !startTime || !endTime) {
+                alert('Please enter complete information!');
+                return;
+            }
+
+            const urlItems = document.getElementById('url-items');
+            const urlItem = document.createElement('div');
+            urlItem.className = 'url-item d-flex justify-content-between align-items-center mb-2';
+            urlItem.innerHTML = ` 
+                <span>URL: ${url}, Start: ${startDay} ${startTime}, End: ${endDay} ${endTime}</span>
+                <button onclick="deleteUrl(this)" class="btn btn-outline-danger btn-sm ms-2">remove</button>`;
+            urlItems.appendChild(urlItem);
+
+            // Reset input fields
+            document.getElementById('url').value = '';
+            document.getElementById('start-time').value = '';
+            document.getElementById('end-time').value = '';
+        }
+
+        function deleteUrl(button) {
+            const urlItem = button.parentNode;
+            urlItem.remove();
+        }
+
+        window.onload = async function () {
+            try {
+                const response = await fetch('/get-state');
+                if (!response.ok) {
+                    throw new Error('Unable to load status from server');
+                }
+                const data = await response.json();
+                const isEnable = data.state === "true";
+                console.log(data.state);
+                toggleButtonState(isEnable);
+            } catch (error) {
+                console.error('Error loading state:', error);
+            }
+            loadFileData();
+        };
+        // end extra
+        function loadFileData() {
+            fetch('/load-data')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.text();
+                })
+                .then(data => {
+                    //console.log(data);
+
+                    const jsonData = JSON.parse(data);
+                    const fileDataContainer = document.getElementById('file-data');
+                    fileDataContainer.innerHTML = '';
+
+                    jsonData.forEach((item, index) => {
+                        const itemElement = document.createElement('div');
+                        itemElement.className = 'json-list-item d-flex justify-content-between align-items-center mb-2';
+                        itemElement.innerHTML = `
+                        <span>URL: ${item.url}, Start: ${item.start_day} ${item.start_time}, End: ${item.end_day} ${item.end_time}</span>`;
+                        fileDataContainer.appendChild(itemElement);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error loading file:', error);
+                    document.getElementById('file-data').textContent = 'Failed to load file data.';
+                });
+        }
+
+        function toggleButtonState(isEnable) {
+            const enableBtn = document.getElementById('enableBtn');
+            const disableBtn = document.getElementById('disableBtn');
+
+
+            if (isEnable) {
+                enableBtn.disabled = true;
+                disableBtn.disabled = false;
+            } else {
+                enableBtn.disabled = false;
+                disableBtn.disabled = true;
+            }
+        }
+
+        function sendAppRequest(action) {
+            const url = action === 'start' ? '/run-app' : '/stop-app';
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ action: action })
+            })
+                .then(response => response.text())
+                .then(data => {
+                    console.log(data);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        }
+
+        var overState = document.getElementById('overlay');
+        async function enableApp() {
+            try {
+                await sendAppRequest('start');
+                //localStorage.setItem('isEnable', 'true');
+                toggleButtonState(true);
+                console.log("App started and button state updated.");
+                updateStateInFile(true);
+                overState.style.display = 'flex'; 
+                setTimeout(function() {
+                    overState.style.display = 'none';
+                    console.log("Overlay hidden after 10 seconds.");
+                }, 10000);
+
+            } catch (error) {
+                console.error("Error during enabling app:", error);
+            }
+        }
+
+        async function disableApp() {
+            try {
+                await sendAppRequest('stop');
+                //localStorage.setItem('isEnable', 'false');
+                toggleButtonState(false);
+                console.log("App stopped and button state updated.");
+                updateStateInFile(false);
+                overState.style.display = 'flex'; 
+                setTimeout(function() {
+                    overState.style.display = 'none';
+                    console.log("Overlay hidden after 10 seconds.");
+                }, 10000);
+
+            } catch (error) {
+                console.error("Error during disabling app:", error);
+            }
+        }
+        function updateStateInFile(isEnabled) {
+            fetch('/set-state', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'text/plain'
+                },
+                body: isEnabled ? 'true' : 'false'
+            })
+            .then(response => response.text())
+            .then(data => {
+                console.log("State updated in file:", data);
+            })
+            .catch(error => {
+                console.error('Error updating state in file:', error);
+            });
+        }
+
+        document.getElementById('enableBtn').onclick = enableApp;
+        document.getElementById('disableBtn').onclick = disableApp;
+
+        // update lai code
+        function delay(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+        async function confirm() {
+            var enableBtn = document.getElementById('enableBtn');
+            var disableBtn = document.getElementById('disableBtn');
+            var isEnableActive = !enableBtn.disabled;
+            var isDisableActive = !disableBtn.disabled;
+
+            console.log("Enable button active:", isEnableActive);
+            console.log("Disable button active:", isDisableActive);
+
+            if (isEnableActive && !isDisableActive) {
+                const urlItems = document.getElementById('url-items').children;
+                if (urlItems.length === 0) {
+                    alert('You haven\'t added any websites to block');
+                    return;
+                } else {
+                    alert("You must enable the feature first");
+                }
+                location.reload();
+                return;
+            }
+
+            if (!isEnableActive && isDisableActive) {
+                const urlItems = document.getElementById('url-items').children;
+                if (urlItems.length === 0) {
+                    alert('You haven\'t added any websites to block');
+                    return;
+                }
+
+                disableApp();
+
+                try {
+                    const clearResponse = await fetch('/clear-data');
+                    if (!clearResponse.ok) {
+                        throw new Error('Failed to clear data');
+                    }
+                    console.log('Data cleared successfully');
+
+                    await delay(1000);
+
+                    let textData = '';
+                    for (let i = 0; i < urlItems.length; i++) {
+                        const urlItemText = urlItems[i].querySelector('span').textContent;
+                        const urlItem = urlItemText.split(', ');
+
+                        const url = urlItem[0].split(': ')[1];
+                        const start = urlItem[1].split(': ')[1];
+                        const end = urlItem[2].split(': ')[1];
+
+                        textData += `${url}, ${start}, ${end}\n`;
+                    }
+                    textData = textData.trim();
+                    const saveResponse = await fetch('/save-data', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'text/plain',
+                        },
+                        body: textData,
+                    });
+                    if (!saveResponse.ok) {
+                        throw new Error('Failed to save data');
+                    }
+                    const saveData = await saveResponse.json();
+                    console.log('Data saved successfully:', saveData);
+
+                    document.getElementById('url-items').innerHTML = '';
+                    loadFileData();
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('An error occurred during the process!');
+                }
+            }
+        }
+        // end update lai code
+    </script>
+</body>
+</html>

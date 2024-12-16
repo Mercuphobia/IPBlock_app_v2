@@ -1,0 +1,213 @@
+{
+    "mac": "4c:12:e8:3c:58:2d",
+    "mac1905": "4c:12:e8:3c:58:2f",
+    "Upstream_Device": "a4:f4:c2:06:06:24",
+    "Firmware_Version": "EW302S000T0001",
+    "Hardware_Version": "EW302S000H0001",
+    "Model_Number": "EW302S",
+    "Serial_Number": "1022A40183C582D",
+    "ip": "192.168.1.5",
+    "wlan2g": "4c:12:e8:3c:58:2e",
+    "wlan5g": "4c:12:e8:3c:58:2f",
+    "label": "EW_3c582d",
+    "location": "",
+    "rssi": "",
+    "ul_speed": "1000 Mbps",
+    "dl_speed": "1000 Mbps",
+    "channel": "6, 44",
+    "node_link": "ETHER",
+    "level": 0,
+    "DeviceInterfaces_num": 5,
+    "DeviceInterfaces": [
+        {
+            "index": 2,
+            "mac1905": "4c:12:e8:3c:58:30",
+            "mediatype": 0,
+            "mediaDesc": 1,
+            "ifname": "eth0",
+            "NeighborInfo": [],
+            "NeighborInfo_num": 0
+        },
+        {
+            "index": 3,
+            "mac1905": "4c:12:e8:3c:58:2d",
+            "mediatype": 0,
+            "mediaDesc": 1,
+            "ifname": "eth1",
+            "NeighborInfo": [
+                {
+                    "mac": "a4:f4:c2:06:06:24",
+                    "mac1905": "a4:f4:c2:06:06:24",
+                    "Upstream_Device": "00:00:00:00:00:00",
+                    "Firmware_Version": "G040E5VN0T0201",
+                    "Hardware_Version": "GW040-NSv1",
+                    "Model_Number": "GW040-NS",
+                    "Serial_Number": "VNPT12340987",
+                    "ip": "192.168.1.1",
+                    "wlan2g": "a4:f4:c2:06:06:24",
+                    "wlan5g": "a4:f4:c2:06:06:25",
+                    "label": "test123",
+                    "location": "",
+                    "rssi": "",
+                    "ul_speed": "1000Mbps",
+                    "dl_speed": "1000Mbps",
+                    "channel": "1, 52",
+                    "node_link": "ETHER",
+                    "level": 3,
+                    "type": "1",
+                    "DirectNeighbor_num": 1,
+                    "DirectNeighbor": [
+                        {
+                            "node_link": "WLAN2G",
+                            "mac1905": "4c:12:e8:3c:58:2f"
+                        }
+                    ],
+                    "client_neigh_num": 0,
+                    "client_neigh": []
+                }
+            ],
+            "NeighborInfo_num": 1
+        },
+        {
+            "index": 15,
+            "mac1905": "4c:12:e8:3c:58:2f",
+            "mediatype": 1,
+            "mediaDesc": 7,
+            "ifname": "ra0",
+            "NeighborInfo": [
+                {
+                    "mac": "4c:12:e8:3c:56:e5",
+                    "mac1905": "4c:12:e8:3c:56:e7",
+                    "Upstream_Device": "4c:12:e8:3c:58:2f",
+                    "Firmware_Version": "EW302S000T0001",
+                    "Hardware_Version": "EW302S000H0001",
+                    "Model_Number": "EW302S",
+                    "Serial_Number": "1022A40183C56E5",
+                    "ip": "192.168.1.4",
+                    "wlan2g": "4c:12:e8:3c:56:e6",
+                    "wlan5g": "4c:12:e8:3c:56:e7",
+                    "label": "EW_3c56e5",
+                    "location": "",
+                    "rssi": "-15",
+                    "ul_speed": "1201 Mbps",
+                    "dl_speed": "1201 Mbps",
+                    "channel": "2, 44",
+                    "node_link": "WLAN5G",
+                    "level": 1,
+                    "type": "1",
+                    "DirectNeighbor_num": 1,
+                    "DirectNeighbor": [
+                        {
+                            "node_link": "WLAN5G",
+                            "mac1905": "4c:12:e8:3c:58:2f"
+                        }
+                    ],
+                    "client_neigh_num": 0,
+                    "client_neigh": []
+                }
+            ],
+            "NeighborInfo_num": 1
+        },
+        {
+            "index": 19,
+            "mac1905": "5c:12:e8:3c:58:2f",
+            "mediatype": 1,
+            "mediaDesc": 7,
+            "ifname": "ra0",
+            "NeighborInfo": [
+                {
+                    "mac": "5c:12:e8:3c:56:e5",
+                    "mac1905": "5c:12:e8:3c:56:e7",
+                    "Upstream_Device": "4c:12:e8:3c:58:2f",
+                    "Firmware_Version": "EW302S000T0002",
+                    "Hardware_Version": "EW302S000H0002",
+                    "Model_Number": "EW303S",
+                    "Serial_Number": "1022A40183C56E5",
+                    "ip": "192.168.1.9",
+                    "wlan2g": "5c:12:e8:3c:56:e6",
+                    "wlan5g": "5c:12:e8:3c:56:e7",
+                    "label": "EW_tr56e5",
+                    "location": "",
+                    "rssi": "-15",
+                    "ul_speed": "1201 Mbps",
+                    "dl_speed": "1201 Mbps",
+                    "channel": "2, 44",
+                    "node_link": "WLAN2G",
+                    "level": 1,
+                    "type": "1",
+                    "DirectNeighbor_num": 1,
+                    "DirectNeighbor": [
+                        {
+                            "node_link": "WLAN5G",
+                            "mac1905": "4c:12:e8:3c:58:2f"
+                        }
+                    ],
+                    "client_neigh_num": 0,
+                    "client_neigh": []
+                }
+            ],
+            "NeighborInfo_num": 1
+        },
+        {
+            "index": 16,
+            "mac1905": "58:12:e8:3c:58:2f",
+            "mediatype": 1,
+            "mediaDesc": 7,
+            "ifname": "ra1",
+            "NeighborInfo": [],
+            "NeighborInfo_num": 0
+        },
+        {
+            "index": 14,
+            "mac1905": "4c:12:e8:3c:58:2e",
+            "mediatype": 1,
+            "mediaDesc": 0,
+            "ifname": "rax0",
+            "NeighborInfo": [],
+            "NeighborInfo_num": 0
+        }
+    ],
+    "ClientsList": [
+        {
+            "ip": "",
+            "host_name": "STA_51C123",
+            "mac": "de:d3:3d:ec:ce:87",
+            "ssid": "GW040-NS_5G_060624",
+            "node_link": "WLAN5G",
+            "rssi": "-32",
+            "txRate": "866Mbps",
+            "rxRate": "1Mbps"
+        },
+        {
+            "ip": "",
+            "host_name": "STA_ECCE87",
+            "mac": "7a:59:80:5d:12:3c",
+            "ssid": "GW040-NS_5G_060624",
+            "node_link": "WLAN5G",
+            "rssi": "-46",
+            "txRate": "195Mbps",
+            "rxRate": "1Mbps"
+        },
+        {
+            "ip": "",
+            "host_name": "STA_ECCE90",
+            "mac": "7b:60:80:5d:12:3c",
+            "ssid": "GW040-NS_5G_022624",
+            "node_link": "WLAN2G",
+            "rssi": "-56",
+            "txRate": "199Mbps",
+            "rxRate": "2Mbps"
+        }
+    ],
+    "DirectNeighbor_num": 2,
+    "DirectNeighbor": [
+        {
+            "mac1905": "4c:12:e8:3c:56:e7",
+            "node_link": "WLAN5G"
+        },
+        {
+            "mac1905": "a4:f4:c2:06:06:24",
+            "node_link": "ETHER"
+        }
+    ]
+}

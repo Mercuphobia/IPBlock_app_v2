@@ -1,0 +1,35 @@
+.node circle {
+    cursor: pointer;
+    fill: #69b3a2;
+    stroke: #555;
+    stroke-width: 1.5px;
+}
+.link {
+    fill: none;
+    /* stroke: #999; */
+    stroke-opacity: 0.6;
+    stroke-width: 1.5px;
+}
+.solid {
+    stroke-dasharray: 0;
+}
+.dashed {
+    stroke-dasharray: 5, 5;
+}
+.tooltip{
+    position: absolute;
+    text-align: center;
+    width: 150px;
+    height: auto;
+    padding: 5px;
+    font: 12px;
+    background: lightsteelblue;
+    border: 2px;
+    border-radius: 8px;
+    pointer-events: none;
+}
+.img-mesh{
+    width: 100%;
+    padding-top:50%;
+    
+}
