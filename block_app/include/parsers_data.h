@@ -45,11 +45,18 @@ typedef struct {
     char file_path[MAX_LENGTH];
 } domain_file;
 
+typedef struct {
+    char web_name[MAX_LENGTH];
+    long start_time_block;
+    long end_time_block;
+} domain_name;
+
 website_block* read_block_web(const char *filename, int *line_count);
 web_block_info* read_web_block_info(const char *filename, int *count);
+domain_name *get_domain_name(const char *filename, int *count);
 check* read_check_list(const char *filename, int *count);
 void printf_to_file(const char *filename);
-void printf_ip_and_time_to_console();
 void check_and_print_access_pages(const char* filename);
 bool is_line_in_file(FILE *file, const char *line);
+void printf_domain_name_to_file(const char* filename);
 #endif // PARSERS_DATA_H

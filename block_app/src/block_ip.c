@@ -4,23 +4,28 @@
 #include <string.h>
 #include <time.h>
 #include <stdbool.h>
+#include <dirent.h>
+#include <sys/stat.h> 
 #include "log.h"
 #include "parsers_data.h"
 
 // run board//
-// #define IPSET_LIST_NO_STDOUT "/userfs/bin/ipset list %s > /dev/null 2>&1"
-// #define IPSET_CREATE "/userfs/bin/ipset create %s hash:ip"
-// #define IPSET_ADD "/userfs/bin/ipset add %s %s"
-// #define IPSET_DELETE_RULE "/userfs/bin/ipset destroy %s_%ld > /dev/null 2>&1"
-// #define IPSET_TEST_RULE "/userfs/bin/ipset test %s %s > /dev/null 2>&1"
+#define IPSET_LIST_NO_STDOUT "/userfs/bin/ipset list %s > /dev/null 2>&1"
+#define IPSET_CREATE "/userfs/bin/ipset create %s hash:ip"
+#define IPSET_ADD "/userfs/bin/ipset add %s %s"
+#define IPSET_DELETE_RULE "/userfs/bin/ipset destroy %s_%ld > /dev/null 2>&1"
+#define IPSET_TEST_RULE "/userfs/bin/ipset test %s %s > /dev/null 2>&1"
+#define IPSET_CREATE_NET "/userfs/bin/ipset create %s hash:net"
+#define IPSET_DELETE_RULE_NET "/userfs/bin/ipset destroy %s > /dev/null 2>&1"
 
 // run vmware//
-#define IPSET_LIST_NO_STDOUT "ipset list %s > /dev/null 2>&1"
-#define IPSET_CREATE "ipset create %s hash:ip"
-#define IPSET_ADD "ipset add %s %s"
-#define IPSET_DELETE_RULE "ipset destroy %s_%ld > /dev/null 2>&1"
-#define IPSET_TEST_RULE "ipset test %s %s > /dev/null 2>&1"
-
+// #define IPSET_LIST_NO_STDOUT "ipset list %s > /dev/null 2>&1"
+// #define IPSET_CREATE "ipset create %s hash:ip"
+// #define IPSET_ADD "ipset add %s %s"
+// #define IPSET_DELETE_RULE "ipset destroy %s_%ld > /dev/null 2>&1"
+// #define IPSET_TEST_RULE "ipset test %s %s > /dev/null 2>&1"
+// #define IPSET_CREATE_NET "ipset create %s hash:net"
+// #define IPSET_DELETE_RULE_NET "ipset destroy %s > /dev/null 2>&1"
 
 
 
@@ -47,10 +52,14 @@
 
 #define IP_TXT_PATH "../../block_app/data/ip.txt"
 #define CHECK_TXT_PATH "../../block_app/data/check.txt"
+#define DOMAIN_NAME_TXT_PATH "../../block_app/data/domain_name.txt"
+#define IP_DB_DIR "../../block_app/ip_db"
 
 
 
 #define REST_TIME_BETWEEN_RUN 30
+#define MAX_PATH_LENGTH 1024
+#define MAX_IP_LENGTH 64
 int num_struct = 0;
 char command[256];
 
@@ -237,7 +246,7 @@ void delete_iptable_rules_chain_and_ipset()
     }
 }
 
-void add_create_and_add_chain(){
+void create_and_add_chain(){
     if (system(CHECK_NAME_CHAIN) != 0) {
         system(RULE_CREATE_CHAIN);
     }
@@ -255,24 +264,111 @@ void add_create_and_add_chain(){
     }
 }
 
-void run()
+int find_file_in_directory(const char *dir_path, const char *filename, char *found_path) {
+    DIR *dir = opendir(dir_path);
+    if (dir == NULL) {
+        perror("Unable to open directory");
+        return 0;
+    }
+    struct dirent *entry;
+    while ((entry = readdir(dir)) != NULL) {
+        if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0) {
+            continue;
+        }
+        char full_path[MAX_PATH_LENGTH];
+        snprintf(full_path, sizeof(full_path), "%s/%s", dir_path, entry->d_name);
+
+        struct stat statbuf;
+        if (stat(full_path, &statbuf) == 0) {
+            if (S_ISDIR(statbuf.st_mode)) {
+                if (find_file_in_directory(full_path, filename, found_path)) {
+                    closedir(dir);
+                    return 1;
+                }
+            } else if (S_ISREG(statbuf.st_mode)) {
+                if (strcmp(entry->d_name, filename) == 0) {
+                    snprintf(found_path, MAX_PATH_LENGTH, "%s", full_path);
+                    closedir(dir);
+                    return 1;
+                }
+            }
+        }
+    }
+    closedir(dir);
+    return 0;
+}
+
+void create_ipset_in_file(char *filename){
+    if (!ipset_exists(filename))
+    {
+        snprintf(command, sizeof(command), IPSET_CREATE_NET, filename);
+        system(command);
+    }
+}
+
+
+void run_command(const char *command) {
+    int ret = system(command);
+    if (ret != 0) {
+        fprintf(stderr, "Command failed: %s\n", command);
+    }
+}
+
+void add_list_ip_from_file(char *filepath, char *filename) {
+    FILE *file = fopen(filepath, "r");
+    if (file == NULL) {
+        perror("Unable to open file");
+        return;
+    }
+    char ip[MAX_IP_LENGTH];
+    while (fgets(ip, sizeof(ip), file)) {
+        ip[strcspn(ip, "\n")] = '\0';
+        ip[strcspn(ip, "\r")] = '\0';
+        snprintf(command, sizeof(command), IPSET_TEST_RULE, filename, ip);
+        int ret = system(command);
+        if (ret != 0) {
+            snprintf(command, sizeof(command), IPSET_ADD, filename, ip);
+            run_command(command);
+        }
+    }
+    fclose(file);
+}
+
+
+void create_and_add_ipset_ip_db(char *filename, char* filepath){
+    check *list = read_check_list(DOMAIN_NAME_TXT_PATH, &num_struct);
+    for(int i=0;i<num_struct;i++){
+        time_t current_time = time(NULL);
+        long local_time = get_current_time_in_seconds();
+        long start_block_time = list[i].start_time_block;
+        long end_block_time = list[i].end_time_block;
+        if(local_time < start_block_time || local_time > end_block_time && filename == list[i].url){
+            if (ipset_exists(filename))
+            {
+                snprintf(command, sizeof(command), IPSET_DELETE_RULE_NET, filename);
+                system(command);
+                delete_ipset_to_chain(filename);
+            }
+        }
+        else if(local_time >= start_block_time && local_time <= end_block_time){
+            create_ipset_in_file(filename);
+            add_ipset_to_chain(filename);
+            add_list_ip_from_file(filepath,filename);
+        }
+    }
+}
+
+void run_block_ip()
 {
-    // if (system(CHECK_NAME_CHAIN) != 0) {
-    //     system(RULE_CREATE_CHAIN);
-    // }
-    // if (system(CHECK_BLOCK_IP_CHAIN_INPUT) != 0) {
-    //     system(IP_TABLES_ADD_CHAIN_INPUT);
-    //     printf("Added BLOCK_IP_CHAIN to INPUT chain.\n");
-    // }
-    // if (system(CHECK_BLOCK_IP_CHAIN_OUTPUT) != 0) {
-    //     system(IP_TABLES_ADD_CHAIN_OUTPUT);
-    //     printf("Added BLOCK_IP_CHAIN to OUTPUT chain.\n");
-    // }
-    // if (system(CHECK_BLOCK_IP_CHAIN_FORWARD) != 0) {
-    //     system(IP_TABLES_ADD_CHAIN_FORWARD);
-    //     printf("Added BLOCK_IP_CHAIN to FORWARD chain.\n");
-    // }
-    add_create_and_add_chain();
+    create_and_add_chain();
+    int num_web = 0;
+    check *list = read_check_list(DOMAIN_NAME_TXT_PATH,&num_web);
+    for(int i=0;i<num_web;i++){
+        char file_path[MAX_PATH_LENGTH];
+        if (find_file_in_directory(IP_DB_DIR, list[i].url, file_path)) {
+            create_and_add_ipset_ip_db(list[i].url,file_path);
+        }
+    }
     check_and_print_access_pages(IP_TXT_PATH);
     get_list();
     //printf_to_file(IP_TXT_PATH);

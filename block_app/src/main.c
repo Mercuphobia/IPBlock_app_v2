@@ -26,7 +26,8 @@
 #define BLOCK_WEB "../../block_app/data/block_web.txt"
 #define IP_FILE "../../block_app/data/ip.txt"
 #define CHECK_FILE "../../block_app/data/check.txt"
-#define FILE_DATA "../../block_app/data/data.txt"
+#define DATA_FILE "../../block_app/data/data.txt"
+#define DOMAIN_NAME_TXT_PATH "../../block_app/data/domain_name.txt"
 
 
 
@@ -35,8 +36,9 @@ volatile sig_atomic_t sigint_received = 0;
 
 void* app1(void* arg) {
     //signal(SIGINT,cleanup);
-    clear_file_to_run(FILE_DATA);
+    clear_file_to_run(DOMAIN_NAME_TXT_PATH);
     transfer_data(SRC_WEB_BLOCK_PATH, DES_WEB_BLOCK_PATH);
+    printf_domain_name_to_file(DOMAIN_NAME_TXT_PATH);
     LOG(LOG_LVL_ERROR, "testmain1: %s, %s, %d\n", __FILE__, __func__, __LINE__);
     start_packet_capture();
 }
@@ -46,7 +48,7 @@ void* app2(void* arg) {
     while (1) {
         clear_file_to_run(IP_FILE);
         clear_file_to_run(CHECK_FILE);
-        run();
+        run_block_ip();
         sleep(4);
     }
 }

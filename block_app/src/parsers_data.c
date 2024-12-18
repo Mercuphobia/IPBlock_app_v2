@@ -3,6 +3,7 @@
 #include "parsers_data.h"
 #include "log.h"
 #include <stdbool.h>
+#include <block_ip.h>
 
 // #define DATA_TXT_PATH "./data/data.txt"
 // #define BLOCK_WEB_TXT_PATH "./data/block_web.txt"
@@ -10,6 +11,7 @@
 #define DATA_TXT_PATH "../../block_app/data/data.txt"
 #define BLOCK_WEB_TXT_PATH "../../block_app/data/block_web.txt"
 #define LIST_DOMAIN_FILE_TXT_PATH "../../block_app/data/list_domain_file.txt"
+#define DOMAIN_NAME_TXT_PATH "../../block_app/data/domain_name.txt"
 
 #define INIT_NUMBER_STRUCT 10
 #define NUMBER_STRUCT_INCREASE 2
@@ -294,6 +296,42 @@ domain_file *read_domain_file(const char *filename, int *count)
     return list;
 }
 
+
+domain_name *get_domain_name(const char *filename, int *count) {
+    domain_name *list = NULL;
+    *count = 0;
+    int number_struct = INIT_NUMBER_STRUCT;
+    list = malloc(number_struct * sizeof(domain_name));
+    if (list == NULL) {
+        perror("Unable to allocate memory");
+        return NULL;
+    }
+    FILE *file = fopen(filename, "r");
+    if (file == NULL) {
+        perror("Unable to open file");
+        free(list);
+        return NULL;
+    }
+    char line[MAX_LENGTH];
+    while (fgets(line, sizeof(line), file)) {
+        line[strcspn(line, "\n")] = '\0';
+        if (*count >= number_struct) {
+            number_struct *= 2;
+            list = realloc(list, number_struct * sizeof(domain_name));
+            if (list == NULL) {
+                perror("Unable to reallocate memory");
+                fclose(file);
+                return NULL;
+            }
+        }
+        strncpy(list[*count].web_name, line, MAX_LENGTH - 1);
+        list[*count].web_name[MAX_LENGTH - 1] = '\0';
+        (*count)++;
+    }
+    fclose(file);
+    return list;
+}
+
 // ----------- check function -----------//
 // start check_function
 
@@ -411,6 +449,7 @@ web_block_info *get_web_block_info_in_domain_file(const char* filename, int *out
     return result_list;
 }
 
+
 void printf_to_file(const char *filename)
 {
     FILE *file = fopen(filename, "a+");
@@ -494,41 +533,78 @@ void check_and_print_access_pages(const char *filename)
     free(list_block);
 }
 
-void printf_ip_and_time_to_console()
-{
-    int result_count = 0;
-    web_block_info *list = get_web_block_info(&result_count);
-    if (list == NULL)
-    {
+// void printf_domain_name_to_file(const char* filename){
+//     FILE *file = fopen(filename, "a+");
+//     if (file == NULL)
+//     {
+//         perror("Unable to open file");
+//         return;
+//     }
+//     int result_count = 0;
+//     website_block *list_block = read_block_web(BLOCK_WEB_TXT_PATH, &result_count);
+//     for(int i = 0; i < result_count; i++){
+//         char url[256];
+//         long start_time_block;
+//         long end_time_block;
+//         strcpy(url, list_block[i].url);
+//         start_time_block = convert_to_seconds(list_block[i].start_day, list_block[i].start_time);
+//         end_time_block = convert_to_seconds(list_block[i].end_day, list_block[i].end_time);
+//         char *url_index = strtok(url, ".");
+//         char line[256];
+//         snprintf(line, sizeof(line), "%s, %ld, %ld\n",url_index, start_time_block, end_time_block);
+//         if (!is_line_in_file(file, line))
+//         {
+//             fprintf(file, "%s", line);
+//         }
+//     }
+//     fclose(file);
+// }
+
+void extract_domain(const char* url, char* domain) {
+    char *start = strstr(url, "www.");
+    if (start != NULL) {
+        start += 4;
+    } else {
+        start = (char*)url;
+    }
+
+    char *dot = strchr(start, '.');
+    if (dot != NULL) {
+        size_t len = dot - start;
+        strncpy(domain, start, len);
+        domain[len] = '\0';
+    } else {
+        strcpy(domain, start);
+    }
+}
+
+void printf_domain_name_to_file(const char* filename) {
+    FILE *file = fopen(filename, "a+");
+    if (file == NULL) {
+        perror("Unable to open file");
         return;
     }
-    char printed_ips[result_count][MAX_LENGTH];
-    int printed_count = 0;
-    for (int i = 0; i < result_count; i++)
-    {
-        int already_printed = 0;
-        for (int j = 0; j < printed_count; j++)
-        {
-            if (strcmp(printed_ips[j], list[i].ip) == 0)
-            {
-                already_printed = 1;
-                break;
-            }
-        }
-        if (!already_printed)
-        {
-            printf("%s\n", list[i].url);
-            printf("%s\n", list[i].ip);
-            printf("%s\n", list[i].start_day);
-            printf("%s\n", list[i].start_time);
-            printf("%s\n", list[i].end_day);
-            printf("%s\n", list[i].end_time);
-            printf("\n");
-            strncpy(printed_ips[printed_count], list[i].ip, MAX_LENGTH);
-            printed_count++;
+
+    int result_count = 0;
+    website_block *list_block = read_block_web(BLOCK_WEB_TXT_PATH, &result_count);
+    for (int i = 0; i < result_count; i++) {
+        char url[256];
+        long start_time_block;
+        long end_time_block;
+        strcpy(url, list_block[i].url);
+        start_time_block = convert_to_seconds(list_block[i].start_day, list_block[i].start_time);
+        end_time_block = convert_to_seconds(list_block[i].end_day, list_block[i].end_time);
+        char domain[256];
+        extract_domain(url, domain);
+
+        char line[256];
+        snprintf(line, sizeof(line), "%s, %ld, %ld\n", domain, start_time_block, end_time_block);
+        if (!is_line_in_file(file, line)) {
+            fprintf(file, "%s", line);
         }
     }
-    free(list);
+
+    fclose(file);
 }
 
 // end check function
