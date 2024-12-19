@@ -1,8 +1,8 @@
 PRO_DIR := .
 OUTPUT_DIR := $(PRO_DIR)/output
 SRC_DIR := $(PRO_DIR)/src
-CC := /home/test/Documents/buildroot-2015.05/output/host/usr/bin/mips-buildroot-linux-uclibc-gcc
-#CC := gcc
+#CC := /home/test/Documents/buildroot-2015.05/output/host/usr/bin/mips-buildroot-linux-uclibc-gcc
+CC := gcc
 
 LIB_DIR := $(PRO_DIR)/include
 BIN := $(PRO_DIR)/bin

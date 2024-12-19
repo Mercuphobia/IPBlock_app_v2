@@ -1,3 +1,2 @@
-fptplay, 40260, 299460
-dantri, 40260, 299460
-thanhnien, 40260, 299460
+thanhnien, 252000, 256980
+thanhnien, 257040, 257100

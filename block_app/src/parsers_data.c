@@ -533,33 +533,6 @@ void check_and_print_access_pages(const char *filename)
     free(list_block);
 }
 
-// void printf_domain_name_to_file(const char* filename){
-//     FILE *file = fopen(filename, "a+");
-//     if (file == NULL)
-//     {
-//         perror("Unable to open file");
-//         return;
-//     }
-//     int result_count = 0;
-//     website_block *list_block = read_block_web(BLOCK_WEB_TXT_PATH, &result_count);
-//     for(int i = 0; i < result_count; i++){
-//         char url[256];
-//         long start_time_block;
-//         long end_time_block;
-//         strcpy(url, list_block[i].url);
-//         start_time_block = convert_to_seconds(list_block[i].start_day, list_block[i].start_time);
-//         end_time_block = convert_to_seconds(list_block[i].end_day, list_block[i].end_time);
-//         char *url_index = strtok(url, ".");
-//         char line[256];
-//         snprintf(line, sizeof(line), "%s, %ld, %ld\n",url_index, start_time_block, end_time_block);
-//         if (!is_line_in_file(file, line))
-//         {
-//             fprintf(file, "%s", line);
-//         }
-//     }
-//     fclose(file);
-// }
-
 void extract_domain(const char* url, char* domain) {
     char *start = strstr(url, "www.");
     if (start != NULL) {

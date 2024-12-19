@@ -10,22 +10,22 @@
 #include "parsers_data.h"
 
 // run board//
-#define IPSET_LIST_NO_STDOUT "/userfs/bin/ipset list %s > /dev/null 2>&1"
-#define IPSET_CREATE "/userfs/bin/ipset create %s hash:ip"
-#define IPSET_ADD "/userfs/bin/ipset add %s %s"
-#define IPSET_DELETE_RULE "/userfs/bin/ipset destroy %s_%ld > /dev/null 2>&1"
-#define IPSET_TEST_RULE "/userfs/bin/ipset test %s %s > /dev/null 2>&1"
-#define IPSET_CREATE_NET "/userfs/bin/ipset create %s hash:net"
-#define IPSET_DELETE_RULE_NET "/userfs/bin/ipset destroy %s > /dev/null 2>&1"
+// #define IPSET_LIST_NO_STDOUT "/userfs/bin/ipset list %s > /dev/null 2>&1"
+// #define IPSET_CREATE "/userfs/bin/ipset create %s hash:ip"
+// #define IPSET_ADD "/userfs/bin/ipset add %s %s"
+// #define IPSET_DELETE_RULE "/userfs/bin/ipset destroy %s_%ld > /dev/null 2>&1"
+// #define IPSET_TEST_RULE "/userfs/bin/ipset test %s %s > /dev/null 2>&1"
+// #define IPSET_CREATE_NET "/userfs/bin/ipset create %s hash:net"
+// #define IPSET_DELETE_RULE_NET "/userfs/bin/ipset destroy %s > /dev/null 2>&1"
 
 // run vmware//
-// #define IPSET_LIST_NO_STDOUT "ipset list %s > /dev/null 2>&1"
-// #define IPSET_CREATE "ipset create %s hash:ip"
-// #define IPSET_ADD "ipset add %s %s"
-// #define IPSET_DELETE_RULE "ipset destroy %s_%ld > /dev/null 2>&1"
-// #define IPSET_TEST_RULE "ipset test %s %s > /dev/null 2>&1"
-// #define IPSET_CREATE_NET "ipset create %s hash:net"
-// #define IPSET_DELETE_RULE_NET "ipset destroy %s > /dev/null 2>&1"
+#define IPSET_LIST_NO_STDOUT "ipset list %s > /dev/null 2>&1"
+#define IPSET_CREATE "ipset create %s hash:ip"
+#define IPSET_ADD "ipset add %s %s"
+#define IPSET_DELETE_RULE "ipset destroy %s_%ld > /dev/null 2>&1"
+#define IPSET_TEST_RULE "ipset test %s %s > /dev/null 2>&1"
+#define IPSET_CREATE_NET "ipset create %s hash:net"
+#define IPSET_DELETE_RULE_NET "ipset destroy %s > /dev/null 2>&1"
 
 
 
@@ -189,7 +189,7 @@ void get_list()
         long start_block_time = convert_to_seconds(list[i].start_day, list[i].start_time);
         long end_block_time = convert_to_seconds(list[i].end_day, list[i].end_time);
         char ipset_name[256];
-        if(local_time < start_block_time || local_time > end_block_time ){
+        if(local_time < start_block_time || local_time > end_block_time){
             snprintf(ipset_name, sizeof(ipset_name), "%s_%ld", list[i].url, convert_to_seconds(list[i].start_day,list[i].start_time));
             if (ipset_exists(ipset_name))
             {
@@ -199,6 +199,12 @@ void get_list()
             }
         }
         else if(local_time >= start_block_time && local_time <= end_block_time){
+            snprintf(ipset_name, sizeof(ipset_name), "%s_%ld", list[i].url, convert_to_seconds(list[i].start_day,list[i].start_time));
+            create_ipset(ipset_name);
+            add_ipset_to_chain(ipset_name);
+            add_ip_to_ipset(ipset_name, list[i].ip);
+        }
+        else if(local_time >= start_block_time && local_time > end_block_time){
             snprintf(ipset_name, sizeof(ipset_name), "%s_%ld", list[i].url, convert_to_seconds(list[i].start_day,list[i].start_time));
             create_ipset(ipset_name);
             add_ipset_to_chain(ipset_name);
@@ -342,21 +348,46 @@ void create_and_add_ipset_ip_db(char *filename, char* filepath){
         long local_time = get_current_time_in_seconds();
         long start_block_time = list[i].start_time_block;
         long end_block_time = list[i].end_time_block;
-        if(local_time < start_block_time || local_time > end_block_time && filename == list[i].url){
-            if (ipset_exists(filename))
-            {
-                snprintf(command, sizeof(command), IPSET_DELETE_RULE_NET, filename);
-                system(command);
-                delete_ipset_to_chain(filename);
+        char ipset_name[256];
+        if(local_time < start_block_time || local_time > end_block_time){
+            if(strcmp(filename, list[i].url) == 0){
+                snprintf(ipset_name, sizeof(ipset_name), "%s_%ld", list[i].url,start_block_time);
+                if (ipset_exists(ipset_name))
+                {
+                    snprintf(command, sizeof(command), IPSET_DELETE_RULE, list[i].url, start_block_time);
+                    system(command);
+                    delete_ipset_to_chain(ipset_name);
+                }
             }
         }
         else if(local_time >= start_block_time && local_time <= end_block_time){
-            create_ipset_in_file(filename);
-            add_ipset_to_chain(filename);
-            add_list_ip_from_file(filepath,filename);
+            if(strcmp(filename,list[i].url) == 0){
+                snprintf(ipset_name, sizeof(ipset_name), "%s_%ld", list[i].url, start_block_time);
+                create_ipset_in_file(ipset_name);
+                add_ipset_to_chain(ipset_name);
+                add_list_ip_from_file(filepath,ipset_name);
+            }
         }
+        else if(local_time >= start_block_time && local_time > end_block_time){
+            if(strcmp(filename,list[i].url) == 0){
+                snprintf(ipset_name, sizeof(ipset_name), "%s_%ld", list[i].url, start_block_time);
+                create_ipset_in_file(ipset_name);
+                add_ipset_to_chain(ipset_name);
+                add_list_ip_from_file(filepath,ipset_name);
+            }
+        }
+        // else {
+        //     snprintf(ipset_name, sizeof(ipset_name), "%s_%ld", list[i].url,start_block_time);
+        //     if (ipset_exists(ipset_name))
+        //     {
+        //         snprintf(command, sizeof(command), IPSET_DELETE_RULE, list[i].url, start_block_time);
+        //         system(command);
+        //         delete_ipset_to_chain(ipset_name);
+        //     }
+        // }
     }
 }
+
 
 void run_block_ip()
 {
