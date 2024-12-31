@@ -51,7 +51,6 @@ void parsers_option(int argc, char *argv[])
         {
             int log_level = atoi(optarg);
             log_set_level(log_level);
-            // log_level_set = 1;
             break;
             
         }
@@ -59,11 +58,9 @@ void parsers_option(int argc, char *argv[])
         case 'r': 
         {
             printf("Removing ipset, iptables chain and iptables rules...\n");
-            delete_iptable_rules_chain_and_ipset();
             break;
         }
         case 'h':
-            // log_level_set = 1;
             printf("Usage: %s [options] [target]...\n", argv[0]);
             print_help();
             break;

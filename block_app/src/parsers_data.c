@@ -69,6 +69,13 @@ website_block *read_block_web(const char *filename, int *line_count)
         {
             strncpy(list_block_web[*line_count].url, token, MAX_LENGTH);
         }
+        token = strtok(NULL, ", ");
+        if(token != NULL){
+            strncpy(list_block_web[*line_count].mac, token, MAX_LENGTH);
+        }
+        else {
+            list_block_web[*line_count].url[0] = '\0';
+        }
         token = strtok(NULL, " ");
         if (token != NULL)
         {
@@ -96,7 +103,6 @@ website_block *read_block_web(const char *filename, int *line_count)
         {
             list_block_web[*line_count].end_day[0] = '\0';
         }
-
         token = strtok(NULL, " ");
         if (token != NULL)
         {
@@ -236,8 +242,9 @@ check *read_check_list(const char *filename, int *count)
             }
         }
         line[strcspn(line, "\n")] = '\0';
-        sscanf(line, "%[^,], %ld, %ld",
+        sscanf(line, "%[^,], %[^,], %ld, %ld",
                list[*count].url,
+               list[*count].mac,
                &list[*count].start_time_block,
                &list[*count].end_time_block);
 
@@ -562,16 +569,18 @@ void printf_domain_name_to_file(const char* filename) {
     website_block *list_block = read_block_web(BLOCK_WEB_TXT_PATH, &result_count);
     for (int i = 0; i < result_count; i++) {
         char url[256];
+        char mac[20];
         long start_time_block;
         long end_time_block;
         strcpy(url, list_block[i].url);
+        strcpy(mac, list_block[i].mac);
         start_time_block = convert_to_seconds(list_block[i].start_day, list_block[i].start_time);
         end_time_block = convert_to_seconds(list_block[i].end_day, list_block[i].end_time);
         char domain[256];
         extract_domain(url, domain);
 
         char line[256];
-        snprintf(line, sizeof(line), "%s, %ld, %ld\n", domain, start_time_block, end_time_block);
+        snprintf(line, sizeof(line), "%s, %s, %ld, %ld\n", domain, mac, start_time_block, end_time_block);
         if (!is_line_in_file(file, line)) {
             fprintf(file, "%s", line);
         }

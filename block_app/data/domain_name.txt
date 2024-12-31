@@ -1,2 +1,2 @@
-thanhnien, 472260, 386400
-thanhnien, 386520, 386580
+thanhnien, 12:31:2C:DC:CA:DA, 126660, 142620
+thanhnien, AC:CC:CC:AD:AC:13, 142680, 142740

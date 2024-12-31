@@ -44,7 +44,6 @@ void* app1(void* arg) {
 }
 
 void* app2(void* arg) {
-    //signal(SIGINT,delete_iptable_rules_chain_and_ipset);
     while (1) {
         clear_file_to_run(IP_FILE);
         clear_file_to_run(CHECK_FILE);
@@ -57,15 +56,14 @@ void sigint_handler(int sig) {
     sigint_received = 1;
     cleanup();
     sleep(2);
-    delete_iptable_rules_chain_and_ipset();
+    //delete_iptable_rules_chain_and_ipset();
     exit(0);
 }
-
 
 int main(int argc, char *argv[]) {
     parsers_option(argc, argv);
     LOG(LOG_LVL_ERROR, "testmain1: %s, %s, %d\n", __FILE__, __func__, __LINE__);
-    signal(SIGINT, sigint_handler);
+    //signal(SIGINT, sigint_handler);
     pthread_create(&thread1, NULL, app1, NULL);
     pthread_create(&thread2, NULL, app2, NULL);
     pthread_join(thread1, NULL);

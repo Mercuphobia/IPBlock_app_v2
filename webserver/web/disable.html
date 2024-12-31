@@ -67,7 +67,7 @@
                             <a class="nav-link" href="mesh.html">Mesh</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="disable.html">Disable</a>
+                            <a class="nav-link" href="disable.html">Block</a>
                         </li>
                     </ul>
                 </div>
@@ -83,6 +83,10 @@
                     <div class="form-group">
                         <label for="url">URL:</label>
                         <input type="text" id="url" class="form-control" placeholder="example.com">
+                    </div>
+                    <div class="form-group">
+                        <label for="mac">MAC Address:</label>
+                        <input type="text" id="mac" class="form-control" placeholder="00:00:00:00:00:00" maxlength="17" oninput="formatMAC(this)">
                     </div>
                     <div class="form-group">
                         <label for="start-time">Start Time:</label>
@@ -152,8 +156,21 @@
 
     <script>
 
+        function formatMAC(input) {
+            let value = input.value.replace(/[^a-fA-F0-9]/g, '');
+            let formatted = '';
+            for (let i = 0; i < value.length; i += 2) {
+                formatted += value.substr(i, 2);
+                if (i < value.length - 2) {
+                    formatted += ':';
+                }
+            }
+            input.value = formatted.substring(0, 17).toUpperCase();
+        }
+
         function addUrl() {
             const url = document.getElementById('url').value;
+            let mac = document.getElementById('mac').value;
             const startDay = document.getElementById('start-day').value;
             const startTime = document.getElementById('start-time').value;
             const endDay = document.getElementById('end-day').value;
@@ -163,17 +180,25 @@
                 alert('Please enter complete information!');
                 return;
             }
-
+            if (mac.length < 17 && mac.length > 0) {
+                alert('MAC address configuration is incorrect!');
+                return;
+            }
+            if(mac === ""){
+                mac = "all";
+                console.log(typeof mac);
+            }
             const urlItems = document.getElementById('url-items');
             const urlItem = document.createElement('div');
             urlItem.className = 'url-item d-flex justify-content-between align-items-center mb-2';
             urlItem.innerHTML = ` 
-                <span>URL: ${url}, Start: ${startDay} ${startTime}, End: ${endDay} ${endTime}</span>
+                <span>URL: ${url}, MAC: ${mac}, Start: ${startDay} ${startTime}, End: ${endDay} ${endTime}</span>
                 <button onclick="deleteUrl(this)" class="btn btn-outline-danger btn-sm ms-2">remove</button>`;
             urlItems.appendChild(urlItem);
 
             // Reset input fields
             document.getElementById('url').value = '';
+            document.getElementById('mac').value = '';
             document.getElementById('start-time').value = '';
             document.getElementById('end-time').value = '';
         }
@@ -191,7 +216,6 @@
                 }
                 const data = await response.json();
                 const isEnable = data.state === "true";
-                console.log(data.state);
                 toggleButtonState(isEnable);
             } catch (error) {
                 console.error('Error loading state:', error);
@@ -209,7 +233,6 @@
                 })
                 .then(data => {
                     //console.log(data);
-
                     const jsonData = JSON.parse(data);
                     const fileDataContainer = document.getElementById('file-data');
                     fileDataContainer.innerHTML = '';
@@ -218,7 +241,7 @@
                         const itemElement = document.createElement('div');
                         itemElement.className = 'json-list-item d-flex justify-content-between align-items-center mb-2';
                         itemElement.innerHTML = `
-                        <span>URL: ${item.url}, Start: ${item.start_day} ${item.start_time}, End: ${item.end_day} ${item.end_time}</span>`;
+                        <span>URL: ${item.url}, MAC: ${item.mac}, Start: ${item.start_day} ${item.start_time}, End: ${item.end_day} ${item.end_time}</span>`;
                         fileDataContainer.appendChild(itemElement);
                     });
                 })
@@ -227,11 +250,9 @@
                     document.getElementById('file-data').textContent = 'Failed to load file data.';
                 });
         }
-
         function toggleButtonState(isEnable) {
             const enableBtn = document.getElementById('enableBtn');
             const disableBtn = document.getElementById('disableBtn');
-
 
             if (isEnable) {
                 enableBtn.disabled = true;
@@ -365,10 +386,12 @@
                         const urlItem = urlItemText.split(', ');
 
                         const url = urlItem[0].split(': ')[1];
-                        const start = urlItem[1].split(': ')[1];
-                        const end = urlItem[2].split(': ')[1];
+                        const mac = urlItem[1].split(': ')[1];
+                        const start = urlItem[2].split(': ')[1];
+                        const end = urlItem[3].split(': ')[1];
 
-                        textData += `${url}, ${start}, ${end}\n`;
+                        textData += `${url}, ${mac}, ${start}, ${end}\n`;
+                        console.log(textData);
                     }
                     textData = textData.trim();
                     const saveResponse = await fetch('/save-data', {

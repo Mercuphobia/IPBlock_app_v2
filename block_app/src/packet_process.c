@@ -34,7 +34,7 @@
 
 #define FILE_DATA "../../block_app/data/data.txt"
 #define DOMAIN_PATH "../../block_app/domain"
-
+#define DATABASE_PATH "../../block_app/ip_db"
 
 
 #define RULE_CREATE_CHAIN "iptables -N RESOLVE_CHAIN"
@@ -101,8 +101,9 @@ static int cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg, struct nfq_data *
 
                     for(int i=0;i<number_of_answer;i++){
                         LOG(LOG_LVL_ERROR, "testmain1: %s, %s, %d\n", __FILE__, __func__, __LINE__);
-                        printf_dns_answer_to_file(dns_answer, dns_payload_content,FILE_DATA);
-                        printf_dns_answer_to_folder_and_file(dns_answer, dns_payload_content,DOMAIN_PATH);
+                        //printf_dns_answer_to_file(dns_answer, dns_payload_content,FILE_DATA);
+                        //printf_dns_answer_to_folder_and_file(dns_answer, dns_payload_content,DOMAIN_PATH);
+                        printf_ip_to_db(dns_answer, dns_payload_content, DATABASE_PATH);
                         int name_length = 0;
                         if ((dns_answer[0] & 0xC0) == 0xC0) {
                             name_length = 2;

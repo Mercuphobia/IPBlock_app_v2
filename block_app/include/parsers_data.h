@@ -8,6 +8,7 @@
 
 typedef struct {
     char url[MAX_LENGTH];
+    char mac[MAX_LENGTH];
     char start_day[MAX_LENGTH];
     char start_time[MAX_LENGTH];
     char end_day[MAX_LENGTH];
@@ -34,6 +35,7 @@ typedef struct {
 
 typedef struct {
     char url[MAX_LENGTH];
+    char mac[MAX_LENGTH];
     long start_time_block;
     long end_time_block;
 
