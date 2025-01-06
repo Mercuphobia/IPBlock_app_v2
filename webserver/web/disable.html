@@ -46,6 +46,22 @@
             border-radius: 3px;
             border: 1px solid #ddd;
         }
+        #url-items {
+            max-height: 470px; 
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            padding: 10px;
+            background-color: #f9f9f9;
+        }
+
+        #file-data {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            padding: 10px;
+            background-color: #f9f9f9;
+            white-space: pre-wrap;
+        }
     </style>
 </head>
 
@@ -188,7 +204,14 @@
                 mac = "all";
                 console.log(typeof mac);
             }
+            //const urlItems = document.getElementById('url-items');
             const urlItems = document.getElementById('url-items');
+            const currentItems = urlItems.getElementsByClassName('url-item');
+            if (currentItems.length >= 100) {
+                alert('You can only add up to 100 items!');
+                return;
+            }
+
             const urlItem = document.createElement('div');
             urlItem.className = 'url-item d-flex justify-content-between align-items-center mb-2';
             urlItem.innerHTML = ` 
@@ -337,7 +360,6 @@
         document.getElementById('enableBtn').onclick = enableApp;
         document.getElementById('disableBtn').onclick = disableApp;
 
-        // update lai code
         function delay(ms) {
             return new Promise(resolve => setTimeout(resolve, ms));
         }
@@ -415,7 +437,7 @@
                 }
             }
         }
-        // end update lai code
+
     </script>
 </body>
 </html>
