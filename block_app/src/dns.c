@@ -199,6 +199,58 @@ void create_file_if_not_exists_in_folder(const char *folder, const char *website
     }
 }
 
+
+// code extra
+void create_file_if_not_exists(unsigned char *folder, const char *domain_name) {
+    char filepath[512];
+    snprintf(filepath, sizeof(filepath), "%s/%s", (char*)folder, domain_name);
+    FILE *file = fopen(filepath, "a+");
+    if (file == NULL) {
+        fprintf(stderr, "Unable to create or open file: %s\n", filepath);
+        return;
+    }
+    fclose(file);
+}
+
+bool is_ip_in_file(const unsigned char *folder, const char *domain_name, const char* ip_str) {
+    char filepath[512];
+    snprintf(filepath, sizeof(filepath), "%s/%s", folder, domain_name);
+    FILE *file = fopen(filepath, "r");
+    if (file == NULL) {
+        fprintf(stderr, "Unable to open file: %s\n", filepath);
+        return false;
+    }
+    char line[512];
+    bool ip_found = false;
+    while (fgets(line, sizeof(line), file)) {
+        if (strstr(line, ip_str)) {
+            ip_found = true;
+            break;
+        }
+    }
+    fclose(file);
+    return ip_found;
+}
+
+bool is_line_have_in_file(FILE *file, const char *line)
+{
+    char buffer[256];
+    rewind(file);
+    while (fgets(buffer, sizeof(buffer), file) != NULL)
+    {
+        buffer[strcspn(buffer, "\n")] = '\0';
+
+        if (strcmp(buffer, line) == 0)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+
+// 
+
 void write_ip_to_file(const char *website_name, const char *file_path, const char *ip_str) {
     FILE *file = fopen(file_path, "a+");
     if (file == NULL) {
@@ -279,7 +331,6 @@ void printf_ip_to_db(unsigned char *dns_answer, unsigned char *dns_payload_conte
         char *ip_str = inet_ntoa(ipv4_addr);
         int num_struct = 0;
         website_block *list = read_block_web(BLOCK_WEB_TXT_PATH, &num_struct);
-        int is_match = 0;
         for(int i=0;i<num_struct;i++){
             if(strstr(domain_name, (char *)list[i].url) != NULL){
                 char *web_name = get_website_name_from_domain_name(list[i].url);
@@ -291,5 +342,81 @@ void printf_ip_to_db(unsigned char *dns_answer, unsigned char *dns_payload_conte
             }
         }
         
+    }
+}
+
+void printf_dns_answer_to_folder_and_file(unsigned char *dns_answer, unsigned char *dns_payload_content, unsigned char *folder)
+{
+    int answer_offset = 0;
+    int name_length = 0;
+
+    if ((dns_answer[0] & 0xC0) == 0xC0)
+    {
+        name_length = 2;
+    }
+    else
+    {
+        while (dns_answer[name_length] != 0)
+        {
+            name_length += dns_answer[name_length] + 1;
+        }
+        name_length += 1;
+    }
+    unsigned short type = ntohs(*(unsigned short *)(dns_answer + name_length));
+    unsigned short data_len = ntohs(*(unsigned short *)(dns_answer + name_length + 8));
+    if (type == 1 && data_len == 4)
+    {
+        struct in_addr ipv4_addr;
+        memcpy(&ipv4_addr, dns_answer + name_length + 10, sizeof(ipv4_addr));
+        char *domain_name = get_dns_answer_name(dns_payload_content, answer_offset);
+        char *ip_str = inet_ntoa(ipv4_addr);
+        int num_struct = 0;
+        website_block *list = read_block_web(BLOCK_WEB_TXT_PATH, &num_struct);
+        int is_match = 0;
+        for (int i = 0; i < num_struct; i++)
+        {   
+            char *web_name = get_website_name_from_domain_name(list[i].url);
+            if(strstr(domain_name, (char *)list[i].url) != NULL)
+            {
+                is_match = 1;
+                break;
+            }
+        }
+        if (!is_match)
+        {
+            return;
+        }
+        char *web_name = get_website_name_from_domain_name(domain_name);
+        create_file_if_not_exists(folder,web_name);
+        char filepath[512];
+        snprintf(filepath, sizeof(filepath), "%s/%s", (char *)folder, web_name);
+        if(!is_ip_in_file(folder,web_name,ip_str)){
+            FILE *file = fopen(filepath, "a+");
+            if (file == NULL) {
+                fprintf(stderr, "Unable to create or open file: %s\n", filepath);
+                return;
+            }
+            char buffer[512];
+            snprintf(buffer, sizeof(buffer), "%s", ip_str);
+            fprintf(file, "%s\n", buffer);
+            fclose(file);
+        }
+
+
+        // char list_file_path[512];
+        // snprintf(list_file_path, sizeof(list_file_path), LIST_DOMAIN_FILE_PATH);
+        // FILE *list_file = fopen(list_file_path, "a+");
+        // if (list_file == NULL)
+        // {
+        //     fprintf(stderr, "Unable to create or open file: %s\n", list_file_path);
+        //     return;
+        // }
+        // char list_entry[512];
+        // snprintf(list_entry, sizeof(list_entry), "%s,%s,%s", strrchr(filepath, '/') + 1, web_name, filepath);
+        // if (!is_line_have_in_file(list_file, list_entry))
+        // {
+        //     fprintf(list_file, "%s\n", list_entry);
+        // }
+        // fclose(list_file);
     }
 }
