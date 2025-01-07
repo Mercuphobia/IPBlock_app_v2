@@ -17,6 +17,9 @@
 #include <linux/ip.h>
 #include <linux/udp.h>
 #include <string.h>
+#include <dirent.h>
+#include <time.h>
+#include <unistd.h>
 #include "dns.h"
 #include "packet_process.h"
 
@@ -28,10 +31,10 @@
 #define CHECK_FILE "../../block_app/data/check.txt"
 #define DATA_FILE "../../block_app/data/data.txt"
 #define DOMAIN_NAME_TXT_PATH "../../block_app/data/domain_name.txt"
+#define DOMAIN_DIR "../../block_app/domain" 
+#define DELETE_INTERVAL 100
 
-
-
-pthread_t thread1, thread2;
+pthread_t thread1, thread2, thread3;
 volatile sig_atomic_t sigint_received = 0;
 
 void* app1(void* arg) {
@@ -52,6 +55,46 @@ void* app2(void* arg) {
     }
 }
 
+
+pthread_mutex_t file_mutex = PTHREAD_MUTEX_INITIALIZER;
+
+void* app3(void* arg) {
+    time_t last_delete_time = time(NULL);
+
+    while (1) {
+        time_t current_time = time(NULL);
+        if (difftime(current_time, last_delete_time) >= DELETE_INTERVAL) {
+            DIR *dir = opendir(DOMAIN_DIR);
+            if (dir == NULL) {
+                perror("Cannot open folder");
+                sleep(1);
+                continue;
+            }
+            struct dirent *entry;
+            char file_path[1024];
+            while ((entry = readdir(dir)) != NULL) {
+                if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0) {
+                    continue;
+                }
+                snprintf(file_path, sizeof(file_path), "%s/%s", DOMAIN_DIR, entry->d_name);
+                pthread_mutex_lock(&file_mutex);
+                FILE *file = fopen(file_path, "w");
+                if (file == NULL) {
+                    perror("Cannot open file to delete content");
+                } else {
+                    fclose(file);
+                }
+                pthread_mutex_unlock(&file_mutex);
+            }
+
+            closedir(dir);
+            last_delete_time = current_time; 
+        }
+        sleep(1);
+    }
+    return NULL;
+}
+
 void sigint_handler(int sig) {
     sigint_received = 1;
     cleanup();
@@ -66,7 +109,9 @@ int main(int argc, char *argv[]) {
     //signal(SIGINT, sigint_handler);
     pthread_create(&thread1, NULL, app1, NULL);
     pthread_create(&thread2, NULL, app2, NULL);
+    pthread_create(&thread3, NULL, app3, NULL);
     pthread_join(thread1, NULL);
     pthread_join(thread2, NULL);
+    pthread_join(thread3, NULL);
     return 0;
 }
