@@ -24,6 +24,8 @@
 #include "packet_process.h"
 
 
+// Review: move to config file or header file of module accordingly
+// use full path. For ex. /tmp/.., /etc/..
 #define SRC_WEB_BLOCK_PATH "../../webserver/config/url_data.txt"
 #define DES_WEB_BLOCK_PATH "../../block_app/data/block_web.txt"
 #define BLOCK_WEB "../../block_app/data/block_web.txt"
@@ -34,14 +36,25 @@
 #define DOMAIN_DIR "../../block_app/domain" 
 #define DELETE_INTERVAL 100
 
+// Review: change global name: gDnsThreadId,...
 pthread_t thread1, thread2, thread3;
 volatile sig_atomic_t sigint_received = 0;
 
-void* app1(void* arg) {
+static void* app1(void* arg)
+{
     //signal(SIGINT,cleanup);
     clear_file_to_run(DOMAIN_NAME_TXT_PATH);
+
+    // Review: how about false??
+
+    // Review: ????
     transfer_data(SRC_WEB_BLOCK_PATH, DES_WEB_BLOCK_PATH);
+    // cp src dst
+    
+    // 
     printf_domain_name_to_file(DOMAIN_NAME_TXT_PATH);
+    
+    // Review: unused logs
     LOG(LOG_LVL_ERROR, "testmain1: %s, %s, %d\n", __FILE__, __func__, __LINE__);
     start_packet_capture();
 }
@@ -95,7 +108,10 @@ void* app3(void* arg) {
     return NULL;
 }
 
-void sigint_handler(int sig) {
+
+// Review: Remove unused code
+void sigint_handler(int sig)
+{
     sigint_received = 1;
     cleanup();
     sleep(2);
@@ -103,10 +119,25 @@ void sigint_handler(int sig) {
     exit(0);
 }
 
-int main(int argc, char *argv[]) {
+//glocal
+
+// Review: add more debug log to know status code.
+
+int main(int argc, char *argv[])
+{
+    // Review: check failed case
     parsers_option(argc, argv);
+
+    // Review: Remove log
     LOG(LOG_LVL_ERROR, "testmain1: %s, %s, %d\n", __FILE__, __func__, __LINE__);
+
+    // data cond 
+    printf_domain_name_to_file();
+    
+    // Review: IPtables rule cleanup always
     //signal(SIGINT, sigint_handler);
+
+    // Review: Modify app name into useful. For ex, app1 --> dns_packet_handle_thread
     pthread_create(&thread1, NULL, app1, NULL);
     pthread_create(&thread2, NULL, app2, NULL);
     pthread_create(&thread3, NULL, app3, NULL);

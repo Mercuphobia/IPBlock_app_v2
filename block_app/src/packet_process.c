@@ -56,6 +56,7 @@
 #define CHECK_RULE_DNS_DPORT "iptables -L RESOLVE_CHAIN | grep -q 'dport 53'"
 
 
+// Review: modify useful name
 void cleanup()
 {
     LOG(LOG_LVL_ERROR, "test_cleanup: %s, %s, %d\n", __FILE__, __func__, __LINE__);

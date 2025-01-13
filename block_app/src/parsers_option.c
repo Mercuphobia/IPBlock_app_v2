@@ -24,7 +24,10 @@ void print_help(){
 
 
 void parsers_option(int argc, char *argv[])
-{   
+{
+    LOG(LOG_LVL_DEBUG, "%s, %d: argv=%s\n", __func__, __LINE__, argv);
+
+    // Review: remove all option. Keep: help & config file (move loglevel into config file). No config argument --> default /etc/config/block-ip.config
     while (1)
     {
         static struct option long_options[] =
@@ -41,6 +44,8 @@ void parsers_option(int argc, char *argv[])
         case 0:
             if (long_options[option_index].flag != 0)
                 break;
+            
+            // Review: Macro printf --> PRINTF
             printf("option %s", long_options[option_index].name);
             if (optarg)
                 printf(" with arg: %s", optarg);
@@ -69,9 +74,12 @@ void parsers_option(int argc, char *argv[])
             break;
 
         default:
+            // Review: PRINTF
             fprintf(stderr, "Usage: %s [-d loglevel] [-h]\n", argv[0]);
         }
     }
+
+    // Review: Unused log
     LOG(LOG_LVL_DEBUG, "%s, %d: test8\n", __func__, __LINE__);
 
     if (optind < argc)
@@ -81,7 +89,7 @@ void parsers_option(int argc, char *argv[])
             printf("%s ", argv[optind++]);
         putchar('\n');
     }
-    LOG(LOG_LVL_ERROR, "test3: %s, %s, %d\n", __FILE__, __func__, __LINE__);
-    LOG(LOG_LVL_WARN, "test4: %s, %s, %d\n", __FILE__, __func__, __LINE__);
-    LOG(LOG_LVL_DEBUG, "test5: %s, %s, %d\n", __FILE__, __func__, __LINE__);
+
+    // Review: Unused log
+    LOG(LOG_LVL_DEBUG, "%s, %d: Leave \n", __func__, __LINE__);
 }

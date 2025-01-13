@@ -37,19 +37,26 @@ website_block *read_block_web(const char *filename, int *line_count)
     website_block *list_block_web = NULL;
     *line_count = 0;
     int number_struct = INIT_NUMBER_STRUCT;
+    FILE *file = NULL;
+    
+
     list_block_web = malloc(number_struct * sizeof(website_block));
     if (list_block_web == NULL)
     {
         perror("Unable to allocate memory");
         return NULL;
     }
-    FILE *file = fopen(filename, "r");
+    
+    file = fopen(filename, "r");
     if (file == NULL)
     {
         perror("Unable to open file");
         free(list_block_web);
         return NULL;
     }
+    
+
+    // web config 
     while (fgets(line, sizeof(line), file))
     {
         if (*line_count >= number_struct)
@@ -497,6 +504,7 @@ void printf_to_file(const char *filename)
 void check_and_print_access_pages(const char *filename)
 {
     FILE *file = fopen(filename, "a+");
+    
     if (file == NULL)
     {
         perror("Unable to open file");
@@ -535,6 +543,7 @@ void check_and_print_access_pages(const char *filename)
             }
         }
     }
+    
     fclose(file);
     free(list_domain_file);
     free(list_block);
@@ -558,20 +567,43 @@ void extract_domain(const char* url, char* domain) {
     }
 }
 
-void printf_domain_name_to_file(const char* filename) {
-    FILE *file = fopen(filename, "a+");
-    if (file == NULL) {
+
+/*
+Description:
+
+Argument:
+IN: 
+OUT:
+
+return:
+web_block_info
+
+
+ */
+void printf_domain_name_to_file(const char* filename)
+{
+    FILE *file = NULL;
+    int result_count = 0;
+    website_block *list_block =  NULL;
+    int result_count = 0;
+    
+    file = fopen(filename, "a+");
+    if (file == NULL)
+    {
         perror("Unable to open file");
         return;
     }
-
-    int result_count = 0;
-    website_block *list_block = read_block_web(BLOCK_WEB_TXT_PATH, &result_count);
-    for (int i = 0; i < result_count; i++) {
+    
+    list_block = read_block_web(BLOCK_WEB_TXT_PATH, &result_count);
+    
+    for (int i = 0; i < result_count; i++)
+    {
         char url[256];
         char mac[20];
         long start_time_block;
         long end_time_block;
+        char line[256];
+
         strcpy(url, list_block[i].url);
         strcpy(mac, list_block[i].mac);
         start_time_block = convert_to_seconds(list_block[i].start_day, list_block[i].start_time);
@@ -579,9 +611,10 @@ void printf_domain_name_to_file(const char* filename) {
         char domain[256];
         extract_domain(url, domain);
 
-        char line[256];
         snprintf(line, sizeof(line), "%s, %s, %ld, %ld\n", domain, mac, start_time_block, end_time_block);
-        if (!is_line_in_file(file, line)) {
+        
+        if (!is_line_in_file(file, line))
+        {
             fprintf(file, "%s", line);
         }
     }

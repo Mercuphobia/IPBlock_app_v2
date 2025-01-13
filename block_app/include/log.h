@@ -7,6 +7,8 @@
 extern unsigned char log_run_level;
 extern const char* log_level_strings[];
 
+#define PRINTF      printf
+
 #define LOG(level, fmt, ...)  printf_log(level, fmt, __VA_ARGS__)
 #define LOG_LVL_NONE  0
 #define LOG_LVL_ERROR 1
