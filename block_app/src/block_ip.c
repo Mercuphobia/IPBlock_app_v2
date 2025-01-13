@@ -32,7 +32,6 @@
 #define IP_TABLES_DELETE_OUTPUT "iptables -D OUTPUT -m set --match-set %s_%ld src -j DROP 2>/dev/null"
 #define IP_TABLES_DELETE_FORWARD "iptables -D FORWARD -m set --match-set %s_%ld src -j DROP 2>/dev/null"
 
-
 #define RULE_CREATE_CHAIN "iptables -N BLOCK_IP_CHAIN"
 #define CHECK_NAME_CHAIN "iptables -L BLOCK_IP_CHAIN >/dev/null 2>&1"
 #define CHECK_BLOCK_IP_CHAIN_INPUT "iptables -L INPUT | grep -q BLOCK_IP_CHAIN"
