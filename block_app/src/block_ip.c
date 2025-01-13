@@ -168,72 +168,6 @@ void add_ip_to_ipset(const char *ipset_name, const char *ip)
     }
 }
 
-// void get_list()
-// {
-//     web_block_info *list = read_web_block_info(IP_TXT_PATH, &num_struct);
-//     FILE *check_file = fopen(CHECK_TXT_PATH, "a+");
-//     if (check_file == NULL)
-//     {
-//         printf("Unable to open file\n");
-//         return;
-//     }
-//     for (int i = 0; i < num_struct; i++)
-//     {   
-//         time_t current_time = time(NULL);
-//         long local_time = get_current_time_in_seconds();
-//         long start_block_time = convert_to_seconds(list[i].start_day, list[i].start_time);
-//         long end_block_time = convert_to_seconds(list[i].end_day, list[i].end_time);
-//         char line[256];
-//         snprintf(line, sizeof(line), "%s, %ld, %ld\n", list[i].url, start_block_time, end_block_time);
-//         if (!is_line_in_file(check_file, line))
-//         {
-//             fprintf(check_file, "%s", line);
-//         }
-//         char ipset_name[256];
-//         if(start_block_time < end_block_time){
-//             if(local_time < start_block_time || local_time > end_block_time){
-//                 snprintf(ipset_name, sizeof(ipset_name), "%s_%ld", list[i].url, start_block_time);
-//                 if (ipset_exists(ipset_name))
-//                 {
-//                     snprintf(command, sizeof(command), IPSET_DELETE_RULE, list[i].url, start_block_time);
-//                     system(command);
-//                     delete_ipset_to_chain(ipset_name);
-//                 }
-//             }
-//             else if(local_time >= start_block_time && local_time <= end_block_time){
-//                 snprintf(ipset_name, sizeof(ipset_name), "%s_%ld", list[i].url, start_block_time);
-//                 create_ipset(ipset_name);
-//                 add_ipset_to_chain(ipset_name);
-//                 add_ip_to_ipset(ipset_name, list[i].ip);
-//             }
-//         }
-//         else {
-//             if(local_time < start_block_time && local_time > end_block_time){
-//                 snprintf(ipset_name, sizeof(ipset_name), "%s_%ld", list[i].url, start_block_time);
-//                 if (ipset_exists(ipset_name))
-//                 {
-//                     snprintf(command, sizeof(command), IPSET_DELETE_RULE, list[i].url, start_block_time);
-//                     system(command);
-//                     delete_ipset_to_chain(ipset_name);
-//                 }
-//             }
-//             else if(local_time >= start_block_time && local_time > end_block_time){
-//                 snprintf(ipset_name, sizeof(ipset_name), "%s_%ld", list[i].url, start_block_time);
-//                 create_ipset(ipset_name);
-//                 add_ipset_to_chain(ipset_name);
-//                 add_ip_to_ipset(ipset_name, list[i].ip);
-//             }
-//             else if(local_time < start_block_time && local_time <= end_block_time){
-//                 snprintf(ipset_name, sizeof(ipset_name), "%s_%ld", list[i].url, start_block_time);
-//                 create_ipset(ipset_name);
-//                 add_ipset_to_chain(ipset_name);
-//                 add_ip_to_ipset(ipset_name, list[i].ip);
-//             }
-//         }
-//     }
-//     fclose(check_file);
-// }
-
 void create_and_add_chain(){
     if (system(CHECK_NAME_CHAIN) != 0) {
         system(RULE_CREATE_CHAIN);
@@ -365,6 +299,19 @@ void create_and_add_ipset_ip_db(char *filename, char* filepath){
                     }
                 }
             }
+            else if (start_block_time == end_block_time){
+                if(local_time == start_block_time && local_time == end_block_time){
+                    if(strcmp(filename, list[i].url) == 0){
+                        snprintf(ipset_name, sizeof(ipset_name), "%s_%ld", list[i].url, start_block_time);
+                        if (ipset_exists(ipset_name))
+                        {
+                            snprintf(command, sizeof(command), IPSET_DELETE_RULE, list[i].url, start_block_time);
+                            system(command);
+                            delete_ipset_have_mac_to_chain(ipset_name, list[i].mac);
+                        }
+                    }
+                }
+            }
             else {
                 if(local_time < start_block_time && local_time > end_block_time){
                     if(strcmp(filename, list[i].url) == 0){
@@ -414,6 +361,19 @@ void create_and_add_ipset_ip_db(char *filename, char* filepath){
                         create_ipset_in_file(ipset_name);
                         add_ipset_to_chain(ipset_name);
                         add_list_ip_from_file(filepath,ipset_name);
+                    }
+                }
+            }
+            else if (start_block_time == end_block_time) {
+                if (local_time == start_block_time && local_time == end_block_time) {
+                    if(strcmp(filename, list[i].url) == 0){
+                        snprintf(ipset_name, sizeof(ipset_name), "%s_%ld", list[i].url,start_block_time);
+                        if (ipset_exists(ipset_name))
+                        {
+                            snprintf(command, sizeof(command), IPSET_DELETE_RULE, list[i].url, start_block_time);
+                            system(command);
+                            delete_ipset_to_chain(ipset_name);
+                        }
                     }
                 }
             }

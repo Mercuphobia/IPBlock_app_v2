@@ -32,6 +32,8 @@ void log_set_level(int level)
 
 void printf_log(int level, const char *format, ...)
 {  
+
+  // review: max file size
   if (level <= log_run_level)
   {
     FILE *log_file;
