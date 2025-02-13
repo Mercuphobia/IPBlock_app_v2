@@ -1,9 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <signal.h>
+#include <ctype.h>
 #include "parsers_option.h"
 #include "file_process.h"
-#include "get_data.h"
 #include "parsers_data.h"
 #include "log.h"
 #include "block_ip.h"
@@ -22,96 +21,43 @@
 #include <unistd.h>
 #include "dns.h"
 #include "packet_process.h"
+#include "defines.h"
 
+pthread_t thread1, thread2;
 
-#define SRC_WEB_BLOCK_PATH "../../webserver/config/url_data.txt"
-#define DES_WEB_BLOCK_PATH "../../block_app/data/block_web.txt"
-#define BLOCK_WEB "../../block_app/data/block_web.txt"
-#define IP_FILE "../../block_app/data/ip.txt"
-#define CHECK_FILE "../../block_app/data/check.txt"
-#define DATA_FILE "../../block_app/data/data.txt"
-#define DOMAIN_NAME_TXT_PATH "../../block_app/data/domain_name.txt"
-#define DOMAIN_DIR "../../block_app/domain" 
-#define DELETE_INTERVAL 100
+void *resolve_ip(void *arg)
+{
+    LOG(LOG_LVL_DEBUG, "%s, %d: Start \n", __func__, __LINE__);
 
-pthread_t thread1, thread2, thread3;
-volatile sig_atomic_t sigint_received = 0;
+    FP_create_empty_file(DOMAIN_NAME_TXT_PATH);
+    FP_copy_file(SRC_WEB_BLOCK_PATH, BLOCK_WEB_TXT_PATH);
+    PD_printf_domain_name_to_file(DOMAIN_NAME_TXT_PATH);
+    PP_start_packet_capture();
 
-void* app1(void* arg) {
-    //signal(SIGINT,cleanup);
-    clear_file_to_run(DOMAIN_NAME_TXT_PATH);
-    transfer_data(SRC_WEB_BLOCK_PATH, DES_WEB_BLOCK_PATH);
-    printf_domain_name_to_file(DOMAIN_NAME_TXT_PATH);
-    LOG(LOG_LVL_ERROR, "testmain1: %s, %s, %d\n", __FILE__, __func__, __LINE__);
-    start_packet_capture();
+    LOG(LOG_LVL_DEBUG, "%s, %d: End \n", __func__, __LINE__);
 }
 
-void* app2(void* arg) {
-    while (1) {
-        clear_file_to_run(IP_FILE);
-        clear_file_to_run(CHECK_FILE);
-        run_block_ip();
-        sleep(4);
+void *block_ip(void *arg)
+{
+    LOG(LOG_LVL_DEBUG, "%s, %d: Start \n", __func__, __LINE__);
+    while (1)
+    {
+        BI_run_block_ip();
+        sleep(SLEEP_TIME_TO_RUN);
     }
+    
+    LOG(LOG_LVL_DEBUG, "%s, %d: End \n", __func__, __LINE__);
 }
 
-
-pthread_mutex_t file_mutex = PTHREAD_MUTEX_INITIALIZER;
-
-void* app3(void* arg) {
-    time_t last_delete_time = time(NULL);
-
-    while (1) {
-        time_t current_time = time(NULL);
-        if (difftime(current_time, last_delete_time) >= DELETE_INTERVAL) {
-            DIR *dir = opendir(DOMAIN_DIR);
-            if (dir == NULL) {
-                perror("Cannot open folder");
-                sleep(1);
-                continue;
-            }
-            struct dirent *entry;
-            char file_path[1024];
-            while ((entry = readdir(dir)) != NULL) {
-                if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0) {
-                    continue;
-                }
-                snprintf(file_path, sizeof(file_path), "%s/%s", DOMAIN_DIR, entry->d_name);
-                pthread_mutex_lock(&file_mutex);
-                FILE *file = fopen(file_path, "w");
-                if (file == NULL) {
-                    perror("Cannot open file to delete content");
-                } else {
-                    fclose(file);
-                }
-                pthread_mutex_unlock(&file_mutex);
-            }
-
-            closedir(dir);
-            last_delete_time = current_time; 
-        }
-        sleep(1);
-    }
-    return NULL;
-}
-
-void sigint_handler(int sig) {
-    sigint_received = 1;
-    cleanup();
-    sleep(2);
-    //delete_iptable_rules_chain_and_ipset();
-    exit(0);
-}
-
-int main(int argc, char *argv[]) {
-    parsers_option(argc, argv);
-    LOG(LOG_LVL_ERROR, "testmain1: %s, %s, %d\n", __FILE__, __func__, __LINE__);
-    //signal(SIGINT, sigint_handler);
-    pthread_create(&thread1, NULL, app1, NULL);
-    pthread_create(&thread2, NULL, app2, NULL);
-    pthread_create(&thread3, NULL, app3, NULL);
+int main(int argc, char *argv[])
+{
+    FP_init_path();
+    LOG(LOG_LVL_DEBUG, "%s, %d: Start \n", __func__, __LINE__);
+    PO_parsers_option(argc, argv);
+    pthread_create(&thread1, NULL, resolve_ip, NULL);
+    pthread_create(&thread2, NULL, block_ip, NULL);
     pthread_join(thread1, NULL);
     pthread_join(thread2, NULL);
-    pthread_join(thread3, NULL);
+    LOG(LOG_LVL_DEBUG, "%s, %d: End \n", __func__, __LINE__);
     return 0;
 }

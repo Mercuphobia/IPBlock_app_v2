@@ -15,93 +15,27 @@
 #include "packet_process.h"
 #include "log.h"
 #include "parsers_data.h"
-
-#define ONE_BYTE 1
-#define TWO_BYTE 2
-#define FOUR_BYTE 4
-#define EIGHT_BYTE 8
-
-#define MAX_PATH_LENGTH 1024
-
-// #define FILE_DATA "./data/data.txt"
-
-#define FILE_DATA "../../block_app/data/data.txt"
-
-#define BLOCK_WEB_TXT_PATH "../../block_app/data/block_web.txt"
-
-#define LIST_DOMAIN_FILE_PATH "../../block_app/data/list_domain_file.txt"
-
-#define DOMAIN_FOLDER "../block_app/domain"
+#include "defines.h"
 
 
-void clear_file_to_start()
-{
-    FILE *file = fopen(FILE_DATA, "w");
-    if (file == NULL)
-    {
-        fclose(file);
-    }
-}
-
-int get_dns_query_length(unsigned char *dns_query)
-{
+int DNS_get_dns_query_length(unsigned char *dns_query)
+{   
+    //LOG(LOG_LVL_DEBUG, "%s, %d: Start \n", __func__, __LINE__);
     int name_length = 0;
     while (dns_query[name_length] != 0)
     {
         name_length += dns_query[name_length] + ONE_BYTE;
     }
+    //LOG(LOG_LVL_DEBUG, "%s, %d. End. with query_length = %d \n", __func__, __LINE__, name_length + ONE_BYTE + FOUR_BYTE);
+
     return name_length + ONE_BYTE + FOUR_BYTE;
 }
 
-int get_dns_answer_length(unsigned char *dns_answer)
-{
-    int name_length = 0;
-    if ((dns_answer[0] & 0xC0) == 0xC0)
-    {
-        name_length = TWO_BYTE;
-    }
-    else
-    {
-        while (dns_answer[name_length] != 0)
-        {
-            name_length += dns_answer[name_length] + ONE_BYTE;
-        }
-        name_length += ONE_BYTE;
-    }
+void DNS_decode_dns_name_answer(unsigned char *dns_packet, unsigned char *buffer, int *offset, int start)
+{   
+    //LOG(LOG_LVL_DEBUG, "%s, %d: Start \n", __func__, __LINE__);
 
-    unsigned short type = ntohs(*(unsigned short *)(dns_answer + name_length));
-    unsigned short class = ntohs(*(unsigned short *)(dns_answer + name_length + TWO_BYTE));
-    unsigned int ttl = ntohl(*(unsigned int *)(dns_answer + name_length + FOUR_BYTE));
-    unsigned short data_len = ntohs(*(unsigned short *)(dns_answer + name_length + 8));
-    int total_length = name_length + TWO_BYTE + TWO_BYTE + FOUR_BYTE + TWO_BYTE + data_len;
-
-    return total_length;
-}
-
-void decode_dns_name(unsigned char *dns, unsigned char *buffer, int *offset)
-{
-    int i = 0, j = 0;
-    while (dns[i] != 0)
-    {
-        int len = dns[i];
-        for (j = 0; j < len; j++)
-        {
-            buffer[*offset + j] = dns[i + 1 + j];
-        }
-        *offset += len;
-        buffer[*offset] = '.';
-        *offset += 1;
-        i += len + 1;
-    }
-    buffer[*offset - 1] = '\0';
-}
-
-void decode_dns_name_answer(unsigned char *dns_packet, unsigned char *buffer, int *offset, int start)
-{
-    int i = start;
-    int j = 0;
-    int jumped = 0;
-    int jump_offset = 0;
+    int i = start, j = 0, jumped = 0, jump_offset = 0, pointer_offset, len;
 
     while (dns_packet[i] != 0)
     {
@@ -112,12 +46,12 @@ void decode_dns_name_answer(unsigned char *dns_packet, unsigned char *buffer, in
                 jump_offset = i + 2;
             }
             jumped = 1;
-            int pointer_offset = ((dns_packet[i] & 0x3F) << 8) | dns_packet[i + 1];
+            pointer_offset = ((dns_packet[i] & 0x3F) << 8) | dns_packet[i + 1];
             i = pointer_offset;
         }
         else
         {
-            int len = dns_packet[i];
+            len = dns_packet[i];
             i += 1;
             for (int k = 0; k < len; k++)
             {
@@ -136,44 +70,77 @@ void decode_dns_name_answer(unsigned char *dns_packet, unsigned char *buffer, in
     {
         *offset = i + 1;
     }
+
+    //LOG(LOG_LVL_DEBUG, "%s, %d: End \n", __func__, __LINE__);
 }
 
 unsigned char *get_dns_answer_name(unsigned char *dns_packet, int answer_offset)
-{
+{   
+    //LOG(LOG_LVL_DEBUG, "%s, %d: Start \n", __func__, __LINE__);
+
     unsigned char *decoded_name = malloc(256);
+    int offset = 0;
+
     if (decoded_name == NULL)
     {
-        printf("Memory allocation failed\n");
+        PRINTF("Memory allocation failed\n");
+        //LOG(LOG_LVL_WARN, "%s, %d: End. Memory allocation failed \n", __func__, __LINE__);
         return NULL;
     }
-    int offset = 0;
-    decode_dns_name_answer(dns_packet, decoded_name, &offset, answer_offset);
+    DNS_decode_dns_name_answer(dns_packet, decoded_name, &offset, answer_offset);
+
+    //LOG(LOG_LVL_DEBUG, "%s, %d: End. decoded_name = %s \n", __func__, __LINE__, decoded_name);
     return decoded_name;
 }
 
-int find_file_in_subfolders(const char *dir_path, const char *filename, char *found_path) {
+/* Describe: Recursively search for a file in a directory and its subdirectories.  
+ *  
+ * Parameters:  
+ *   - dir_path: A string representing the path of the directory to search in.  
+ *   - filename: A string representing the name of the file to search for.  
+ *   - found_path: A pointer to a character array where the full path of the found file will be stored.  
+ *  
+ * Return:  
+ *   - 1: if the file is found, and its full path is stored in found_path.  
+ *   - 0:  if the file is not found or if an error occurs while opening the directory.    
+ */
+int find_file_in_subfolders(const char *dir_path, const char *filename, char *found_path)
+{   
+    //LOG(LOG_LVL_DEBUG, "%s, %d: Start \n", __func__, __LINE__);
     DIR *dir = opendir(dir_path);
-    if (dir == NULL) {
+    if (dir == NULL)
+    {
         perror("Unable to open directory");
+        LOG(LOG_LVL_ERROR, "end find_file_in_subfolders(). Unable to open directory %s, %s, %s, %s, %d\n",
+                            dir_path, filename,  __FILE__, __func__, __LINE__);
+        //LOG(LOG_LVL_WARN, "%s, %d: End. Unable to open directory %s  \n", __func__, __LINE__, dir_path);
         return 0;
     }
     struct dirent *entry;
-    while ((entry = readdir(dir)) != NULL) {
-        if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0) {
+    while ((entry = readdir(dir)) != NULL)
+    {
+        if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0)
+        {
             continue;
         }
         char full_path[MAX_PATH_LENGTH];
         snprintf(full_path, sizeof(full_path), "%s/%s", dir_path, entry->d_name);
 
         struct stat statbuf;
-        if (stat(full_path, &statbuf) == 0) {
-            if (S_ISDIR(statbuf.st_mode)) {
-                if (find_file_in_subfolders(full_path, filename, found_path)) {
+        if (stat(full_path, &statbuf) == 0)
+        {
+            if (S_ISDIR(statbuf.st_mode))
+            {
+                if (find_file_in_subfolders(full_path, filename, found_path))
+                {
                     closedir(dir);
                     return 1;
                 }
-            } else if (S_ISREG(statbuf.st_mode)) {
-                if (strcmp(entry->d_name, filename) == 0) {
+            }
+            else if (S_ISREG(statbuf.st_mode))
+            {
+                if (strcmp(entry->d_name, filename) == 0)
+                {
                     snprintf(found_path, MAX_PATH_LENGTH, "%s", full_path);
                     closedir(dir);
                     return 1;
@@ -182,132 +149,181 @@ int find_file_in_subfolders(const char *dir_path, const char *filename, char *fo
         }
     }
     closedir(dir);
+    //LOG(LOG_LVL_DEBUG, "%s, %d: End. \n", __func__, __LINE__);
     return 0;
 }
 
-void create_file_if_not_exists_in_folder(const char *folder, const char *website_name) {
-    char result_path[512];
-    if (!find_file_in_subfolders(folder, website_name, result_path)) {
-        char filepath[512];
-        snprintf(filepath, sizeof(filepath), "%s/other/%s", folder, website_name);
-        FILE *file = fopen(filepath, "a+");
-        if (file == NULL) {
+/* Description: Checks if a file exists in the given directory (including subdirectories). If not, creates the file.
+*
+* Parameters:
+* - folder: String representing the directory path where the file should be checked or created.
+* - website_name: String representing the name of the file to be checked or created.
+* - is_domain: Integer flag specifying the storage location of the file:
+* - If is_domain == 1, the file is stored directly inside the directory.
+* - If is_domain == 0, the file is stored inside the "other" subdirectory within the directory.
+*
+* Output:
+* create the file if it does not exist
+*/
+void create_file_if_not_exists(const char *folder, const char *website_name, int is_domain)
+{   
+    LOG(LOG_LVL_DEBUG, "%s, %d: Start website_name_path: %s\n", __func__, __LINE__, website_name);
+
+    char result_path[512], filepath[512];
+    FILE *file;
+
+    if (!find_file_in_subfolders(folder, website_name, result_path))
+    {
+        if (is_domain)
+        {
+            snprintf(filepath, sizeof(filepath), "%s/%s", folder, website_name);
+        }
+        else
+        {
+            snprintf(filepath, sizeof(filepath), "%s/other/%s", folder, website_name);
+        }
+
+        file = fopen(filepath, "a+");
+        if (file == NULL)
+        {
             fprintf(stderr, "Unable to create file: %s\n", filepath);
+            LOG(LOG_LVL_WARN, "%s, %d: End Unable to create file: %s\n", __func__, __LINE__, filepath);
             return;
         }
         fclose(file);
     }
+
+    LOG(LOG_LVL_DEBUG, "%s, %d: End \n", __func__, __LINE__);
 }
 
+/* Description: Writes an IP address to a file if it does not already exist in the file.  
+ *  
+ * Parameters:  
+ * - website_name: String representing the website associated with the IP address.  
+ * - file_path: String representing the path to the file where the IP should be stored.  
+ * - ip_str: String representing the IP address to be written to the file.  
+ *  
+ * Output:  
+ * - Writes the IP address to the file if it is not already present.  
+ */
+void write_ip_to_file(const char *website_name, const char *file_path, const char *ip_str)
+{   
+    LOG(LOG_LVL_DEBUG, "%s, %d: Start website_name: %s, ip: %s \n", __func__, __LINE__, website_name, ip_str);
 
-// code extra
-void create_file_if_not_exists(unsigned char *folder, const char *domain_name) {
-    char filepath[512];
-    snprintf(filepath, sizeof(filepath), "%s/%s", (char*)folder, domain_name);
-    FILE *file = fopen(filepath, "a+");
-    if (file == NULL) {
-        fprintf(stderr, "Unable to create or open file: %s\n", filepath);
-        return;
-    }
-    fclose(file);
-}
-
-bool is_ip_in_file(const unsigned char *folder, const char *domain_name, const char* ip_str) {
-    char filepath[512];
-    snprintf(filepath, sizeof(filepath), "%s/%s", folder, domain_name);
-    FILE *file = fopen(filepath, "r");
-    if (file == NULL) {
-        fprintf(stderr, "Unable to open file: %s\n", filepath);
-        return false;
-    }
     char line[512];
     bool ip_found = false;
-    while (fgets(line, sizeof(line), file)) {
-        if (strstr(line, ip_str)) {
-            ip_found = true;
-            break;
-        }
-    }
-    fclose(file);
-    return ip_found;
-}
+    FILE *file;
 
-bool is_line_have_in_file(FILE *file, const char *line)
-{
-    char buffer[256];
-    rewind(file);
-    while (fgets(buffer, sizeof(buffer), file) != NULL)
+    file = fopen(file_path, "a+");
+    if (file == NULL)
     {
-        buffer[strcspn(buffer, "\n")] = '\0';
-
-        if (strcmp(buffer, line) == 0)
-        {
-            return true;
-        }
-    }
-    return false;
-}
-
-
-// 
-
-void write_ip_to_file(const char *website_name, const char *file_path, const char *ip_str) {
-    FILE *file = fopen(file_path, "a+");
-    if (file == NULL) {
         fprintf(stderr, "Unable to open file: %s\n", file_path);
+        LOG(LOG_LVL_WARN, "end write_ip_to_file(). Unable to open file %s, %s, %s, %s, %d\n", 
+                            file_path, ip_str,  __FILE__, __func__, __LINE__);
+        LOG(LOG_LVL_WARN, "%s, %d: End. . Unable to open file %s \n", __func__, __LINE__, file_path);
         return;
     }
     fseek(file, 0, SEEK_SET);
-    char line[512];
-    bool ip_found = false;
-    while (fgets(line, sizeof(line), file)) {
-        if (strstr(line, ip_str)) {
+    
+    while (fgets(line, sizeof(line), file))
+    {
+        if (strstr(line, ip_str))
+        {
             ip_found = true;
             break;
         }
     }
+
     fseek(file, 0, SEEK_END);
     long file_size = ftell(file);
-    if (!ip_found) {
-        if (file_size > 0) {
+    
+    if (!ip_found)
+    {
+        if (file_size > 0)
+        {
             fprintf(file, "\n%s", ip_str);
-        } else {
+        }
+        else
+        {
             fprintf(file, "%s", ip_str);
         }
     }
 
     fclose(file);
+    LOG(LOG_LVL_DEBUG, "%s, %d: End \n", __func__, __LINE__);
 }
 
-char* get_website_name_from_domain_name(const char *domain_name){
+/* Description: Extracts the website name from the given domain or URL. 
+ * The function will remove the "http://", "https://" and "www." prefixes, if present. 
+ * The function will extract the first part of the domain name (before the first dot).
+ *
+ * Parameters:
+ * - domain_name: A string representing the full domain name or URL.
+ *
+ * Returns:
+ * Returns a pointer to the extracted website name.
+ * If the input is invalid or the extraction fails, the function returns NULL.
+ *
+ */
+char *get_website_name_from_domain_name(const char *domain_name)
+{   
+    LOG(LOG_LVL_DEBUG, "%s, %d: Start \n", __func__, __LINE__);
+
     char buffer[256];
     char *token, *name = NULL;
-    strncpy(buffer, domain_name, sizeof(buffer)-1);
+
+    strncpy(buffer, domain_name, sizeof(buffer) - 1);
     buffer[sizeof(buffer) - 1] = '\0';
-    if (strncmp(buffer, "http://", 7) == 0) {
+    if (strncmp(buffer, "http://", 7) == 0)
+    {
         token = strtok(buffer + 7, "/");
-    } else if (strncmp(buffer, "https://", 8) == 0) {
+    }
+    else if (strncmp(buffer, "https://", 8) == 0)
+    {
         token = strtok(buffer + 8, "/");
-    } else {
+    }
+    else
+    {
         token = strtok(buffer, "/");
     }
-    if (token != NULL && strncmp(token, "www.", 4) == 0) {
+    if (token != NULL && strncmp(token, "www.", 4) == 0)
+    {
         token += 4;
     }
-    if (token != NULL) {
+    if (token != NULL)
+    {
         char *dot = strchr(token, '.');
-        if (dot != NULL) {
+        if (dot != NULL)
+        {
             *dot = '\0';
         }
         name = token;
     }
-    return name;
 
+    LOG(LOG_LVL_DEBUG, "%s, %d: End. name = %s\n", __func__, __LINE__, name);
+    return name;
 }
 
-void printf_ip_to_db(unsigned char *dns_answer, unsigned char *dns_payload_content, unsigned char *folder_path){
-    int answer_offset = 0;
-    int name_length = 0;
+/* Description: Processes a DNS answer, extracts the IP address, and saves it in a specified folder if the domain is in the block list.  
+ *  
+ * Parameters:  
+ * - dns_answer: Pointer to the DNS answer section of the packet.  
+ * - dns_payload_content: Pointer to the full DNS payload content.  
+ * - folder: Pointer to the directory where the IP should be saved.  
+ * - is_domain: Integer flag specifying the storage location:  
+ *   - If is_domain == 1, the file is stored directly inside the directory.  
+ *   - If is_domain == 0, the file is stored inside the "other" subdirectory within the directory.  
+ *  
+ * Output:  
+ * - Extracts the IP address from the DNS answer and stores it in a file if the domain is in the block list.  
+ */
+void DNS_process_dns_answer_and_save_ip_in_folder(unsigned char *dns_answer, unsigned char *dns_payload_content, 
+                                    unsigned char *folder, int is_domain)
+{
+    //LOG(LOG_LVL_DEBUG, "%s, %d: Start \n", __func__, __LINE__);
+
+    int answer_offset = 0, name_length = 0;
+    unsigned short type, data_len;
 
     if ((dns_answer[0] & 0xC0) == 0xC0)
     {
@@ -321,102 +337,36 @@ void printf_ip_to_db(unsigned char *dns_answer, unsigned char *dns_payload_conte
         }
         name_length += 1;
     }
-    unsigned short type = ntohs(*(unsigned short *)(dns_answer + name_length));
-    unsigned short data_len = ntohs(*(unsigned short *)(dns_answer + name_length + 8));
+
+    type = ntohs(*(unsigned short *)(dns_answer + name_length));
+    data_len = ntohs(*(unsigned short *)(dns_answer + name_length + 8));
+
     if (type == 1 && data_len == 4)
     {
         struct in_addr ipv4_addr;
-        memcpy(&ipv4_addr, dns_answer + name_length + 10, sizeof(ipv4_addr));
-        char *domain_name = get_dns_answer_name(dns_payload_content, answer_offset);
-        char *ip_str = inet_ntoa(ipv4_addr);
+        char *domain_name, *ip_str, file_path_in_folder[512], *web_name;
         int num_struct = 0;
-        website_block *list = read_block_web(BLOCK_WEB_TXT_PATH, &num_struct);
-        for(int i=0;i<num_struct;i++){
-            if(strstr(domain_name, (char *)list[i].url) != NULL){
-                char *web_name = get_website_name_from_domain_name(list[i].url);
-                create_file_if_not_exists_in_folder(folder_path, web_name);
-                char file_path_in_folder[512];
-                if(find_file_in_subfolders(folder_path, web_name, file_path_in_folder)){
+        website_block *list;
+
+        memcpy(&ipv4_addr, dns_answer + name_length + 10, sizeof(ipv4_addr));
+        domain_name = get_dns_answer_name(dns_payload_content, answer_offset);
+        ip_str = inet_ntoa(ipv4_addr);
+
+        list = PD_get_list_block_web(BLOCK_WEB_TXT_PATH, &num_struct);
+
+        for (int i = 0; i < num_struct; i++)
+        {
+            if (strstr(domain_name, (char *)list[i].url) != NULL)
+            {
+                web_name = get_website_name_from_domain_name(list[i].url);
+                create_file_if_not_exists(folder, web_name, is_domain);
+                if (find_file_in_subfolders(folder, web_name, file_path_in_folder))
+                {
                     write_ip_to_file(web_name, file_path_in_folder, ip_str);
                 }
             }
         }
-        
     }
-}
 
-void printf_dns_answer_to_folder_and_file(unsigned char *dns_answer, unsigned char *dns_payload_content, unsigned char *folder)
-{
-    int answer_offset = 0;
-    int name_length = 0;
-
-    if ((dns_answer[0] & 0xC0) == 0xC0)
-    {
-        name_length = 2;
-    }
-    else
-    {
-        while (dns_answer[name_length] != 0)
-        {
-            name_length += dns_answer[name_length] + 1;
-        }
-        name_length += 1;
-    }
-    unsigned short type = ntohs(*(unsigned short *)(dns_answer + name_length));
-    unsigned short data_len = ntohs(*(unsigned short *)(dns_answer + name_length + 8));
-    if (type == 1 && data_len == 4)
-    {
-        struct in_addr ipv4_addr;
-        memcpy(&ipv4_addr, dns_answer + name_length + 10, sizeof(ipv4_addr));
-        char *domain_name = get_dns_answer_name(dns_payload_content, answer_offset);
-        char *ip_str = inet_ntoa(ipv4_addr);
-        int num_struct = 0;
-        website_block *list = read_block_web(BLOCK_WEB_TXT_PATH, &num_struct);
-        int is_match = 0;
-        for (int i = 0; i < num_struct; i++)
-        {   
-            char *web_name = get_website_name_from_domain_name(list[i].url);
-            if(strstr(domain_name, (char *)list[i].url) != NULL)
-            {
-                is_match = 1;
-                break;
-            }
-        }
-        if (!is_match)
-        {
-            return;
-        }
-        char *web_name = get_website_name_from_domain_name(domain_name);
-        create_file_if_not_exists(folder,web_name);
-        char filepath[512];
-        snprintf(filepath, sizeof(filepath), "%s/%s", (char *)folder, web_name);
-        if(!is_ip_in_file(folder,web_name,ip_str)){
-            FILE *file = fopen(filepath, "a+");
-            if (file == NULL) {
-                fprintf(stderr, "Unable to create or open file: %s\n", filepath);
-                return;
-            }
-            char buffer[512];
-            snprintf(buffer, sizeof(buffer), "%s", ip_str);
-            fprintf(file, "%s\n", buffer);
-            fclose(file);
-        }
-
-
-        // char list_file_path[512];
-        // snprintf(list_file_path, sizeof(list_file_path), LIST_DOMAIN_FILE_PATH);
-        // FILE *list_file = fopen(list_file_path, "a+");
-        // if (list_file == NULL)
-        // {
-        //     fprintf(stderr, "Unable to create or open file: %s\n", list_file_path);
-        //     return;
-        // }
-        // char list_entry[512];
-        // snprintf(list_entry, sizeof(list_entry), "%s,%s,%s", strrchr(filepath, '/') + 1, web_name, filepath);
-        // if (!is_line_have_in_file(list_file, list_entry))
-        // {
-        //     fprintf(list_file, "%s\n", list_entry);
-        // }
-        // fclose(list_file);
-    }
+    //LOG(LOG_LVL_DEBUG, "%s, %d: End \n", __func__, __LINE__);
 }

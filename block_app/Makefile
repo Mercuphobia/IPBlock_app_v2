@@ -8,9 +8,9 @@ LIB_DIR := $(PRO_DIR)/include
 BIN := $(PRO_DIR)/bin
 DATA_DIR := $(PRO_DIR)/data
 DOMAIN_DIR := $(PRO_DIR)/domain
+OTHER_DIR := $(PRO_DIR)/ip_db/other
 
 CFLAGS := -g -std=c99
-#CFLAGS := -g
 LDFLAGS := -lm -lnetfilter_queue -pthread
 
 SRC_FILES := $(wildcard $(SRC_DIR)/*.c)
@@ -32,3 +32,4 @@ clean:
 	rm -rf $(OUTPUT_DIR)/*
 	rm -rf $(BIN)/*
 	rm -rf $(DOMAIN_DIR)/*
+	rm -rf $(OTHER_DIR)/*
