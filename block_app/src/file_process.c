@@ -106,36 +106,32 @@ void FP_init_path()
 
 FILE *open_file(const char *file_name, const char *mode)
 {   
-    //LOG(LOG_LVL_DEBUG, "start open_file() %s, %s, %s, %d\n", file_name, __FILE__, __func__, __LINE__);
-
     FILE *file = fopen(file_name,mode);
     if(!file){
         perror("Open file false");
-        //LOG(LOG_LVL_ERROR, "end open_file(). Open file false %s, %s, %s, %d\n", file_name, __FILE__, __func__, __LINE__);
     }   
-    //LOG(LOG_LVL_DEBUG, "end open_file() %s, %s, %s, %d\n", file_name, __FILE__, __func__, __LINE__);
     return file;
     
 }
 
 void FP_create_empty_file(const char *filename) 
 {
-    LOG(LOG_LVL_DEBUG, "%s, %d Start, file name: %s\n", __func__, __LINE__, filename);
+    LOG(LOG_LVL_DEBUG, "%s, %d Start, file name: %s", __func__, __LINE__, filename);
 
     FILE *check_file = fopen(filename, "w");
     if (check_file == NULL) 
     {
-        LOG(LOG_LVL_ERROR, "%s, %d, End. Unable to open file. %s\n", __func__, __LINE__, filename);
+        LOG(LOG_LVL_ERROR, "%s, %d, End. Unable to open file. %s", __func__, __LINE__, filename);
         exit(EXIT_FAILURE);
     }
     fclose(check_file);
 
-    LOG(LOG_LVL_DEBUG, "%s, %d, End \n", __func__, __LINE__);
+    LOG(LOG_LVL_DEBUG, "%s, %d, End ", __func__, __LINE__);
 }
 
 void FP_copy_file(const char *input_file, const char *output_file) 
 {
-    LOG(LOG_LVL_DEBUG, "%s, %d, Start \n", __func__, __LINE__);
+    LOG(LOG_LVL_DEBUG, "%s, %d, Start ", __func__, __LINE__);
 
     FILE *fp1, *fp2;
     char buffer[128], command1[256], command2[256];
@@ -144,7 +140,7 @@ void FP_copy_file(const char *input_file, const char *output_file)
     fp1 = popen(command1, "r");
     if (fp1 == NULL) 
     {
-        LOG(LOG_LVL_ERROR, "%s, %d, End, failed to run input %s\n", __func__, __LINE__, input_file);
+        LOG(LOG_LVL_ERROR, "%s, %d, End, failed to run input %s", __func__, __LINE__, input_file);
         exit(EXIT_FAILURE);
     }
 
@@ -153,7 +149,7 @@ void FP_copy_file(const char *input_file, const char *output_file)
     if (fp2 == NULL) 
     {
         pclose(fp1);
-        LOG(LOG_LVL_ERROR, "%s, %d, End, failed to run output %s\n", __func__, __LINE__, output_file);
+        LOG(LOG_LVL_ERROR, "%s, %d, End, failed to run output %s", __func__, __LINE__, output_file);
         exit(EXIT_FAILURE);
     }
 
@@ -164,7 +160,7 @@ void FP_copy_file(const char *input_file, const char *output_file)
 
     pclose(fp1);
     pclose(fp2);
-    LOG(LOG_LVL_DEBUG, "%s, %d, End \n", __func__, __LINE__);
+    LOG(LOG_LVL_DEBUG, "%s, %d, End ", __func__, __LINE__);
 }
 
 

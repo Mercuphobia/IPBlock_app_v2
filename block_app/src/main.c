@@ -27,37 +27,37 @@ pthread_t thread1, thread2;
 
 void *resolve_ip(void *arg)
 {
-    LOG(LOG_LVL_DEBUG, "%s, %d: Start \n", __func__, __LINE__);
+    LOG(LOG_LVL_DEBUG, "%s, %d: Start ", __func__, __LINE__);
 
     FP_create_empty_file(DOMAIN_NAME_TXT_PATH);
     FP_copy_file(SRC_WEB_BLOCK_PATH, BLOCK_WEB_TXT_PATH);
     PD_printf_domain_name_to_file(DOMAIN_NAME_TXT_PATH);
     PP_start_packet_capture();
 
-    LOG(LOG_LVL_DEBUG, "%s, %d: End \n", __func__, __LINE__);
+    LOG(LOG_LVL_DEBUG, "%s, %d: End ", __func__, __LINE__);
 }
 
 void *block_ip(void *arg)
 {
-    LOG(LOG_LVL_DEBUG, "%s, %d: Start \n", __func__, __LINE__);
+    LOG(LOG_LVL_DEBUG, "%s, %d: Start ", __func__, __LINE__);
     while (1)
     {
         BI_run_block_ip();
         sleep(SLEEP_TIME_TO_RUN);
     }
     
-    LOG(LOG_LVL_DEBUG, "%s, %d: End \n", __func__, __LINE__);
+    LOG(LOG_LVL_DEBUG, "%s, %d: End ", __func__, __LINE__);
 }
 
 int main(int argc, char *argv[])
 {
     FP_init_path();
-    LOG(LOG_LVL_DEBUG, "%s, %d: Start \n", __func__, __LINE__);
+    LOG(LOG_LVL_DEBUG, "%s, %d: Start ", __func__, __LINE__);
     PO_parsers_option(argc, argv);
     pthread_create(&thread1, NULL, resolve_ip, NULL);
     pthread_create(&thread2, NULL, block_ip, NULL);
     pthread_join(thread1, NULL);
     pthread_join(thread2, NULL);
-    LOG(LOG_LVL_DEBUG, "%s, %d: End \n", __func__, __LINE__);
+    LOG(LOG_LVL_DEBUG, "%s, %d: End ", __func__, __LINE__);
     return 0;
 }

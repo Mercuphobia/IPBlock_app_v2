@@ -52,72 +52,71 @@
 #define IP_TABLES_ADD_RULES_IN_CHAIN_HAVE_MAC "iptables -A BLOCK_IP_CHAIN_HAVE_MAC -m mac --mac-source %s -m set --match-set %s dst -j DROP > /dev/null 2>&1"
 #define IP_TABLES_DELETE_RULES_IN_CHAIN_HAVE_MAC "iptables -D BLOCK_IP_CHAIN_HAVE_MAC -m mac --mac-source %s -m set --match-set %s dst -j DROP > /dev/null 2>&1"
 
-
 int num_struct = 0;
 char command[256], sub_command[256];
 
-/* Description: Converts a given day of the week into its corresponding numeric value.  
- *  
- * Parameters:  
+/* Description: Converts a given day of the week into its corresponding numeric value.
+ *
+ * Parameters:
  * - day: String representing the day of the week
- *  
- * Return:  
- * - Returns an integer corresponding to the day of the week:  
- *   - Monday -> 0  
- *   - Tuesday -> 1  
- *   - Wednesday -> 2  
- *   - Thursday -> 3  
- *   - Friday -> 4  
- *   - Saturday -> 5  
- *   - Sunday -> 6  
- * - Returns -1 if the input day is invalid.  
+ *
+ * Return:
+ * - Returns an integer corresponding to the day of the week:
+ *   - Monday -> 0
+ *   - Tuesday -> 1
+ *   - Wednesday -> 2
+ *   - Thursday -> 3
+ *   - Friday -> 4
+ *   - Saturday -> 5
+ *   - Sunday -> 6
+ * - Returns -1 if the input day is invalid.
  */
 int BI_get_day_number(const char *day)
 {
-    LOG(LOG_LVL_DEBUG, "%s, %d: Start \n", __func__, __LINE__);
+    LOG(LOG_LVL_DEBUG, "%s, %d: Start", __func__, __LINE__);
     if (strcmp(day, "Monday") == 0)
     {
-        LOG(LOG_LVL_DEBUG, "%s, %d: End. day = %s \n", __func__, __LINE__, day);
+        LOG(LOG_LVL_DEBUG, "%s, %d: End. day = %s", __func__, __LINE__, day);
         return 0;
     }
-        
+
     if (strcmp(day, "Tuesday") == 0)
     {
-        LOG(LOG_LVL_DEBUG, "%s, %d: End. day = %s \n", __func__, __LINE__, day);
+        LOG(LOG_LVL_DEBUG, "%s, %d: End. day = %s", __func__, __LINE__, day);
         return 1;
     }
-        
+
     if (strcmp(day, "Wednesday") == 0)
     {
-        LOG(LOG_LVL_DEBUG, "%s, %d: End. day = %s \n", __func__, __LINE__, day);
+        LOG(LOG_LVL_DEBUG, "%s, %d: End. day = %s", __func__, __LINE__, day);
         return 2;
     }
-        
+
     if (strcmp(day, "Thursday") == 0)
     {
-        LOG(LOG_LVL_DEBUG, "%s, %d: End. day = %s \n", __func__, __LINE__, day);
+        LOG(LOG_LVL_DEBUG, "%s, %d: End. day = %s", __func__, __LINE__, day);
         return 3;
     }
-        
+
     if (strcmp(day, "Friday") == 0)
     {
-        LOG(LOG_LVL_DEBUG, "%s, %d: End. day = %s \n", __func__, __LINE__, day);
+        LOG(LOG_LVL_DEBUG, "%s, %d: End. day = %s", __func__, __LINE__, day);
         return 4;
     }
-        
+
     if (strcmp(day, "Saturday") == 0)
     {
-        LOG(LOG_LVL_DEBUG, "%s, %d: End. day = %s \n", __func__, __LINE__, day);
+        LOG(LOG_LVL_DEBUG, "%s, %d: End. day = %s", __func__, __LINE__, day);
         return 5;
     }
-        
+
     if (strcmp(day, "Sunday") == 0)
     {
-        LOG(LOG_LVL_DEBUG, "%s, %d: End. day = %s \n", __func__, __LINE__, day);
+        LOG(LOG_LVL_DEBUG, "%s, %d: End. day = %s", __func__, __LINE__, day);
         return 6;
     }
-    LOG(LOG_LVL_WARN, "%s, %d: End. day invalid = %s \n", __func__, __LINE__, day);   
-    
+    LOG(LOG_LVL_WARN, "%s, %d: End. day invalid = %s", __func__, __LINE__, day);
+
     return -1;
 }
 
@@ -136,7 +135,7 @@ int BI_get_day_number(const char *day)
  */
 long get_current_time_in_seconds()
 {
-
+    // LOG(LOG_LVL_DEBUG, "%s, %d: Start", __func__, __LINE__);
     time_t now;
     long total_seconds;
     struct tm *tm_now;
@@ -148,9 +147,8 @@ long get_current_time_in_seconds()
     if (day_number < 0)
         day_number = 6;
     total_seconds = day_number * 86400 + tm_now->tm_hour * 3600 + tm_now->tm_min * 60 + tm_now->tm_sec;
-
+    // LOG(LOG_LVL_DEBUG, "%s, %d: End total_seconds = %ld", __func__, __LINE__, total_seconds);
     return total_seconds;
-
 }
 
 /* Describes: This function checks if a specific ipset exists in the system by running a command to list ipsets.
@@ -163,15 +161,15 @@ long get_current_time_in_seconds()
  *      0: if the ipset does not exist.
  */
 int check_ipset_exists(const char *ipset_name)
-{   
-    LOG(LOG_LVL_DEBUG, "%s, %d: Start \n", __func__, __LINE__);
+{
+    LOG(LOG_LVL_DEBUG, "%s, %d: Start", __func__, __LINE__);
 
     int result;
 
     snprintf(command, sizeof(command), IPSET_LIST_NO_STDOUT, ipset_name);
     result = system(command);
 
-    LOG(LOG_LVL_DEBUG, "%s, %d: End \n", __func__, __LINE__);
+    LOG(LOG_LVL_DEBUG, "%s, %d: End", __func__, __LINE__);
 
     return result == 0;
 }
@@ -186,7 +184,7 @@ int check_ipset_exists(const char *ipset_name)
  */
 void add_ipset_to_chain(const char *ipset_name)
 {
-    LOG(LOG_LVL_DEBUG, "%s, %d: Start \n", __func__, __LINE__);
+    LOG(LOG_LVL_DEBUG, "%s, %d: Start", __func__, __LINE__);
 
     snprintf(command, sizeof(command), IP_TABLES_CHECK_RULES_IN_CHAIN, ipset_name);
     if (system(command) != 0)
@@ -194,20 +192,20 @@ void add_ipset_to_chain(const char *ipset_name)
         snprintf(sub_command, sizeof(sub_command), IP_TABLES_ADD_RULES_IN_CHAIN, ipset_name);
         int result_sub_command = system(sub_command);
         if (result_sub_command != 0)
-        {   
+        {
             PRINTF("Can't add rules %s in chain\n", ipset_name);
-            LOG(LOG_LVL_WARN, "%s, %d: Can't add rules in chain \n", __func__, __LINE__);
+            LOG(LOG_LVL_WARN, "%s, %d: Can't add rules in chain", __func__, __LINE__);
         }
         else
         {
-            LOG(LOG_LVL_DEBUG, "Added ipset %s to BLOCK_IP_CHAIN with DROP action., %s, %s, %d\n", ipset_name, __FILE__, __func__, __LINE__);
+            LOG(LOG_LVL_DEBUG, "%s, %d Added ipset %s to BLOCK_IP_CHAIN with DROP action.", __func__, __LINE__, ipset_name);
             PRINTF("Added ipset %s to BLOCK_IP_CHAIN with DROP action.\n", ipset_name);
         }
     }
-    LOG(LOG_LVL_DEBUG, "%s, %d: End \n", __func__, __LINE__);
+    LOG(LOG_LVL_DEBUG, "%s, %d: End", __func__, __LINE__);
 }
 
-/* Describes: This function deletes an ipset from a chain in iptables 
+/* Describes: This function deletes an ipset from a chain in iptables
  *
  * Parameters:
  * - ipset_name: The name of the ipset to be removed.
@@ -217,7 +215,7 @@ void add_ipset_to_chain(const char *ipset_name)
  */
 void delete_ipset_to_chain(const char *ipset_name)
 {
-    LOG(LOG_LVL_DEBUG, "%s, %d: Start \n", __func__, __LINE__);
+    LOG(LOG_LVL_DEBUG, "%s, %d: Start", __func__, __LINE__);
 
     snprintf(command, sizeof(command), IP_TABLES_CHECK_RULES_IN_CHAIN, ipset_name);
     if (system(command) == 0)
@@ -225,9 +223,9 @@ void delete_ipset_to_chain(const char *ipset_name)
         snprintf(command, sizeof(command), IP_TABLES_DELETE_RULES_IN_CHAIN, ipset_name);
         system(command);
         PRINTF("Removed ipset %s from BLOCK_IP_CHAIN with DROP action.\n", ipset_name);
-        LOG(LOG_LVL_DEBUG, "%s, %d Removed ipset %s from BLOCK_IP_CHAIN with DROP action. \n", __func__, __LINE__, ipset_name);
+        LOG(LOG_LVL_DEBUG, "%s, %d Removed ipset %s from BLOCK_IP_CHAIN with DROP action.", __func__, __LINE__, ipset_name);
     }
-    LOG(LOG_LVL_DEBUG, "%s, %d: End \n", __func__, __LINE__);
+    LOG(LOG_LVL_DEBUG, "%s, %d: End", __func__, __LINE__);
 }
 
 /* Describes: This function adds an ipset related to a MAC address to a specific iptables chain if the rule does not already exist.
@@ -240,8 +238,8 @@ void delete_ipset_to_chain(const char *ipset_name)
  *      Adds the ipset with the MAC address to the BLOCK_IP_CHAIN_HAVE_MAC in iptables if the rule doesn't already exist.
  */
 void add_ipset_have_mac_to_chain(const char *ipset_name, const char *mac)
-{   
-    LOG(LOG_LVL_DEBUG, "%s, %d: Start \n", __func__, __LINE__);
+{
+    LOG(LOG_LVL_DEBUG, "%s, %d: Start", __func__, __LINE__);
 
     snprintf(command, sizeof(command), IP_TABLES_CHECK_RULES_IN_CHAIN_HAVE_MAC, mac, ipset_name);
     if (system(command) != 0)
@@ -249,9 +247,9 @@ void add_ipset_have_mac_to_chain(const char *ipset_name, const char *mac)
         snprintf(command, sizeof(command), IP_TABLES_ADD_RULES_IN_CHAIN_HAVE_MAC, mac, ipset_name);
         system(command);
         PRINTF("Added ipset %s with MAC %s to BLOCK_IP_CHAIN_HAVE_MAC with DROP action.\n", ipset_name, mac);
-        LOG(LOG_LVL_DEBUG, "Added ipset %s with MAC %s to BLOCK_IP_CHAIN_HAVE_MAC with DROP action. \n", __func__, __LINE__, ipset_name, mac);
+        LOG(LOG_LVL_DEBUG, "%s, %d Added ipset %s with MAC %s to BLOCK_IP_CHAIN_HAVE_MAC with DROP action.", __func__, __LINE__, ipset_name, mac);
     }
-    LOG(LOG_LVL_DEBUG, "%s, %d: End \n", __func__, __LINE__);
+    LOG(LOG_LVL_DEBUG, "%s, %d: End", __func__, __LINE__);
 }
 
 /* Describes: This function deletes an ipset from a chain in iptables that is associated with a specific MAC address.
@@ -265,7 +263,7 @@ void add_ipset_have_mac_to_chain(const char *ipset_name, const char *mac)
  */
 void delete_ipset_have_mac_to_chain(const char *ipset_name, const char *mac)
 {
-    LOG(LOG_LVL_DEBUG, "%s, %d: Start \n", __func__, __LINE__);
+    LOG(LOG_LVL_DEBUG, "%s, %d: Start", __func__, __LINE__);
 
     snprintf(command, sizeof(command), IP_TABLES_CHECK_RULES_IN_CHAIN_HAVE_MAC, mac, ipset_name);
     if (system(command) == 0)
@@ -274,10 +272,10 @@ void delete_ipset_have_mac_to_chain(const char *ipset_name, const char *mac)
         snprintf(command, sizeof(command), IP_TABLES_DELETE_RULES_IN_CHAIN_HAVE_MAC, mac, ipset_name);
         system(command);
         PRINTF("Removed ipset %s with MAC %s to BLOCK_IP_CHAIN_HAVE_MAC with DROP action.\n", ipset_name, mac);
-        LOG(LOG_LVL_DEBUG, "%s, %d Removed ipset %s with MAC %s to BLOCK_IP_CHAIN_HAVE_MAC with DROP action. \n", __func__, __LINE__, ipset_name, mac);
+        LOG(LOG_LVL_DEBUG, "%s, %d Removed ipset %s with MAC %s to BLOCK_IP_CHAIN_HAVE_MAC with DROP action.", __func__, __LINE__, ipset_name, mac);
     }
 
-    LOG(LOG_LVL_DEBUG, "%s, %d: End \n", __func__, __LINE__);
+    LOG(LOG_LVL_DEBUG, "%s, %d: End", __func__, __LINE__);
 }
 
 /* Describes: This function is designed to create and add chains for blocking IP and MAC addresses.
@@ -294,56 +292,215 @@ void delete_ipset_have_mac_to_chain(const char *ipset_name, const char *mac)
  * BLOCK_IP_CHAIN_HAVE_MAC is created and added to INPUT and FORWARD chains.
  */
 void create_and_add_chain()
-{   
-    LOG(LOG_LVL_DEBUG, "%s, %d: Start \n", __func__, __LINE__);
+{
+    LOG(LOG_LVL_DEBUG, "%s, %d: Start", __func__, __LINE__);
 
-    if (system(CHECK_NAME_CHAIN) != 0)
+    // if (system(CHECK_NAME_CHAIN) != 0)
+    // {
+    //     system(RULE_CREATE_CHAIN);
+    // }
+
+    int retry = 0;
+
+    while (system(CHECK_NAME_CHAIN) != 0)
     {
-        system(RULE_CREATE_CHAIN);
+        if (system(RULE_CREATE_CHAIN) == 0)
+        {
+            LOG(LOG_LVL_DEBUG, "%s, %d: Create BLOCK_IP_CHAIN success.", __func__, __LINE__);
+            break;
+        }
+
+        retry++;
+        LOG(LOG_LVL_WARN, "%s, %d. Failed to create BLOCK_IP_CHAIN. Attempt %d", __func__, __LINE__, retry);
+        PRINTF("Failed to create BLOCK_IP_CHAIN. Attempt %d\n", retry);
+
+        if (retry >= 3)
+        {
+            LOG(LOG_LVL_ERROR, "%s, %d. End. Exceeded max retries. Create BLOCK_IP_CHAIN false.", __func__, __LINE__);
+            PRINTF("Exceeded max retries. Create BLOCK_IP_CHAIN false.\n");
+            exit(EXIT_FAILURE);
+        }
+        sleep(1);
     }
 
-    if (system(CHECK_BLOCK_IP_CHAIN_INPUT) != 0)
+    // if (system(CHECK_BLOCK_IP_CHAIN_INPUT) != 0)
+    // {
+    //     system(IP_TABLES_ADD_CHAIN_INPUT);
+    //     PRINTF("Added BLOCK_IP_CHAIN to INPUT chain.\n");
+    //     LOG(LOG_LVL_DEBUG, "%s, %d Printf Added BLOCK_IP_CHAIN to INPUT chain", __func__, __LINE__);
+    // }
+
+    retry = 0;
+    while (system(CHECK_BLOCK_IP_CHAIN_INPUT) != 0)
     {
-        system(IP_TABLES_ADD_CHAIN_INPUT);
-        PRINTF("Added BLOCK_IP_CHAIN to INPUT chain.\n");
-        LOG(LOG_LVL_DEBUG, "printf Added BLOCK_IP_CHAIN to INPUT chain: %s, %s, %d\n", __FILE__, __func__, __LINE__);
-        LOG(LOG_LVL_DEBUG, "%s, %d Printf Added BLOCK_IP_CHAIN to INPUT chain \n", __func__, __LINE__);
+        if (system(IP_TABLES_ADD_CHAIN_INPUT) == 0)
+        {
+            LOG(LOG_LVL_DEBUG, "%s, %d: Create INPUT BLOCK_IP_CHAIN success.", __func__, __LINE__);
+            PRINTF("Added BLOCK_IP_CHAIN to INPUT chain.\n");
+            break;
+        }
+
+        retry++;
+        LOG(LOG_LVL_WARN, "%s, %d. Failed to create INPUT BLOCK_IP_CHAIN. Attempt %d", __func__, __LINE__, retry);
+        PRINTF("Failed to create INTPUT BLOCK_IP_CHAIN. Attempt %d\n", retry);
+
+        if (retry >= 3)
+        {
+            LOG(LOG_LVL_ERROR, "%s, %d. End. Exceeded max retries. Create INPUT BLOCK_IP_CHAIN false.", __func__, __LINE__);
+            PRINTF("Exceeded max retries. Create INPUT BLOCK_IP_CHAIN false.\n");
+            exit(EXIT_FAILURE);
+        }
+        sleep(1);
     }
 
-    if (system(CHECK_BLOCK_IP_CHAIN_OUTPUT) != 0)
+    // if (system(CHECK_BLOCK_IP_CHAIN_OUTPUT) != 0)
+    // {
+    //     system(IP_TABLES_ADD_CHAIN_OUTPUT);
+    //     PRINTF("Added BLOCK_IP_CHAIN to OUTPUT chain.\n");
+    //     LOG(LOG_LVL_DEBUG, "%s, %d Printf Added BLOCK_IP_CHAIN to OUTPUT chain", __func__, __LINE__);
+    // }
+
+    retry = 0;
+    while (system(CHECK_BLOCK_IP_CHAIN_OUTPUT) != 0)
     {
-        system(IP_TABLES_ADD_CHAIN_OUTPUT);
-        PRINTF("Added BLOCK_IP_CHAIN to OUTPUT chain.\n");
-        LOG(LOG_LVL_DEBUG, "%s, %d Printf Added BLOCK_IP_CHAIN to OUTPUT chain \n", __func__, __LINE__);
+        if (system(IP_TABLES_ADD_CHAIN_OUTPUT) == 0)
+        {
+            LOG(LOG_LVL_DEBUG, "%s, %d: Create OUTPUT BLOCK_IP_CHAIN success.", __func__, __LINE__);
+            PRINTF("Added BLOCK_IP_CHAIN to OUTPUT chain.\n");
+            break;
+        }
+
+        retry++;
+        LOG(LOG_LVL_WARN, "%s, %d. Failed to create OUTPUT BLOCK_IP_CHAIN. Attempt %d", __func__, __LINE__, retry);
+        PRINTF("Failed to create OUTPUT BLOCK_IP_CHAIN. Attempt %d\n", retry);
+
+        if (retry >= 3)
+        {
+            LOG(LOG_LVL_ERROR, "%s, %d. End. Exceeded max retries. Create OUTPUT BLOCK_IP_CHAIN false.", __func__, __LINE__);
+            PRINTF("Exceeded max retries. Create OUTPUT BLOCK_IP_CHAIN false.\n");
+            exit(EXIT_FAILURE);
+        }
+        sleep(1);
     }
 
-    if (system(CHECK_BLOCK_IP_CHAIN_FORWARD) != 0)
+    // if (system(CHECK_BLOCK_IP_CHAIN_FORWARD) != 0)
+    // {
+    //     system(IP_TABLES_ADD_CHAIN_FORWARD);
+    //     PRINTF("Added BLOCK_IP_CHAIN to FORWARD chain.\n");
+    //     LOG(LOG_LVL_DEBUG, "%s, %d Printf Added BLOCK_IP_CHAIN to FORWARD chain", __func__, __LINE__);
+    // }
+
+    retry = 0;
+    while (system(CHECK_BLOCK_IP_CHAIN_FORWARD) != 0)
     {
-        system(IP_TABLES_ADD_CHAIN_FORWARD);
-        PRINTF("Added BLOCK_IP_CHAIN to FORWARD chain.\n");
-        LOG(LOG_LVL_DEBUG, "%s, %d Printf Added BLOCK_IP_CHAIN to FORWARD chain \n", __func__, __LINE__);
+        if (system(IP_TABLES_ADD_CHAIN_FORWARD) == 0)
+        {
+            LOG(LOG_LVL_DEBUG, "%s, %d: Create FORWARD BLOCK_IP_CHAIN success.", __func__, __LINE__);
+            PRINTF("Added BLOCK_IP_CHAIN to FORWARD chain.\n");
+            break;
+        }
+
+        retry++;
+        LOG(LOG_LVL_WARN, "%s, %d. Failed to create FORWARD BLOCK_IP_CHAIN. Attempt %d", __func__, __LINE__, retry);
+        PRINTF("Failed to create FORWARD BLOCK_IP_CHAIN. Attempt %d\n", retry);
+
+        if (retry >= 3)
+        {
+            LOG(LOG_LVL_ERROR, "%s, %d. End. Exceeded max retries. Create FORWARD BLOCK_IP_CHAIN false.", __func__, __LINE__);
+            PRINTF("Exceeded max retries. Create FORWARD BLOCK_IP_CHAIN false.\n");
+            exit(EXIT_FAILURE);
+        }
+        sleep(1);
     }
 
-    if (system(CHECK_NAME_CHAIN_HAVE_MAC) != 0)
+    // if (system(CHECK_NAME_CHAIN_HAVE_MAC) != 0)
+    // {
+    //     system(RULE_CREATE_CHAIN_HAVE_MAC);
+    // }
+
+    retry = 0;
+    while (system(CHECK_NAME_CHAIN_HAVE_MAC) != 0)
     {
-        system(RULE_CREATE_CHAIN_HAVE_MAC);
+        if (system(RULE_CREATE_CHAIN_HAVE_MAC) == 0)
+        {
+            LOG(LOG_LVL_DEBUG, "%s, %d: Create BLOCK_IP_CHAIN_HAVE_MAC success.", __func__, __LINE__);
+            break;
+        }
+
+        retry++;
+        LOG(LOG_LVL_WARN, "%s, %d. Failed to create BLOCK_IP_CHAIN_HAVE_MAC. Attempt %d", __func__, __LINE__, retry);
+        PRINTF("Failed to create BLOCK_IP_CHAIN_HAVE_MAC. Attempt %d\n", retry);
+
+        if (retry >= 3)
+        {
+            LOG(LOG_LVL_ERROR, "%s, %d. End. Exceeded max retries. Create BLOCK_IP_CHAIN_HAVE_MAC false.", __func__, __LINE__);
+            PRINTF("Exceeded max retries. Create BLOCK_IP_CHAIN_HAVE_MAC false.\n");
+            exit(EXIT_FAILURE);
+        }
+        sleep(1);
     }
 
-    if (system(CHECK_BLOCK_IP_CHAIN_HAVE_MAC_INPUT) != 0)
+    // if (system(CHECK_BLOCK_IP_CHAIN_HAVE_MAC_INPUT) != 0)
+    // {
+    //     system(IP_TABLES_ADD_CHAIN_HAVE_MAC_INPUT);
+    //     PRINTF("Added BLOCK_IP_CHAIN_HAVE_MAC to INPUT chain.\n");
+    //     LOG(LOG_LVL_DEBUG, "%s, %d Printf Added BLOCK_IP_CHAIN_HAVE_MAC to INPUT chain:", __func__, __LINE__);
+    // }
+
+    retry = 0;
+    while (system(CHECK_BLOCK_IP_CHAIN_HAVE_MAC_INPUT) != 0)
     {
-        system(IP_TABLES_ADD_CHAIN_HAVE_MAC_INPUT);
-        PRINTF("Added BLOCK_IP_CHAIN_HAVE_MAC to INPUT chain.\n");
-        LOG(LOG_LVL_DEBUG, "%s, %d Printf Added BLOCK_IP_CHAIN_HAVE_MAC to INPUT chain: \n", __func__, __LINE__);
+        if (system(IP_TABLES_ADD_CHAIN_HAVE_MAC_INPUT) == 0)
+        {
+            LOG(LOG_LVL_DEBUG, "%s, %d: Create INPUT BLOCK_IP_CHAIN_HAVE_MAC.", __func__, __LINE__);
+            PRINTF("Added BLOCK_IP_CHAIN_HAVE_MAC to INPUT chain.\n");
+            break;
+        }
+
+        retry++;
+        LOG(LOG_LVL_WARN, "%s, %d. Failed to create INPUT BLOCK_IP_CHAIN_HAVE_MAC. Attempt %d", __func__, __LINE__, retry);
+        PRINTF("Failed to create INPUT BLOCK_IP_CHAIN_HAVE_MAC. Attempt %d\n", retry);
+
+        if (retry >= 3)
+        {
+            LOG(LOG_LVL_ERROR, "%s, %d. End. Exceeded max retries. Create INPUT BLOCK_IP_CHAIN_HAVE_MAC false.", __func__, __LINE__);
+            PRINTF("Exceeded max retries. Create INPUT BLOCK_IP_CHAIN_HAVE_MAC false.\n");
+            exit(EXIT_FAILURE);
+        }
+        sleep(1);
     }
 
-    if (system(CHECK_BLOCK_IP_CHAIN_HAVE_MAC_FORWARD) != 0)
+    // if (system(CHECK_BLOCK_IP_CHAIN_HAVE_MAC_FORWARD) != 0)
+    // {
+    //     system(IP_TABLES_ADD_CHAIN_HAVE_MAC_FORWARD);
+    //     PRINTF("Added BLOCK_IP_CHAIN_HAVE_MAC to FORWARD chain.\n");
+    //     LOG(LOG_LVL_DEBUG, "%s, %d Printf Added BLOCK_IP_CHAIN_HAVE_MAC to FORWARD chain", __func__, __LINE__);
+    // }
+
+    retry = 0;
+    while (system(CHECK_BLOCK_IP_CHAIN_HAVE_MAC_FORWARD) != 0)
     {
-        system(IP_TABLES_ADD_CHAIN_HAVE_MAC_FORWARD);
-        PRINTF("Added BLOCK_IP_CHAIN_HAVE_MAC to FORWARD chain.\n");
-        LOG(LOG_LVL_DEBUG, "%s, %d Printf Added BLOCK_IP_CHAIN_HAVE_MAC to FORWARD chain \n", __func__, __LINE__);
+        if (system(IP_TABLES_ADD_CHAIN_HAVE_MAC_FORWARD) == 0)
+        {
+            LOG(LOG_LVL_DEBUG, "%s, %d: Create FORWARD BLOCK_IP_CHAIN_HAVE_MAC.", __func__, __LINE__);
+            PRINTF("Added BLOCK_IP_CHAIN_HAVE_MAC to FORWARD chain.\n");
+            break;
+        }
+
+        retry++;
+        LOG(LOG_LVL_WARN, "%s, %d. Failed to create FORWARD BLOCK_IP_CHAIN_HAVE_MAC. Attempt %d", __func__, __LINE__, retry);
+        PRINTF("Failed to create FORWARD BLOCK_IP_CHAIN_HAVE_MAC. Attempt %d\n", retry);
+
+        if (retry >= 3)
+        {
+            LOG(LOG_LVL_ERROR, "%s, %d. End. Exceeded max retries. Create FORWARD BLOCK_IP_CHAIN_HAVE_MAC false.", __func__, __LINE__);
+            PRINTF("Exceeded max retries. Create FORWARD BLOCK_IP_CHAIN_HAVE_MAC false.\n");
+            exit(EXIT_FAILURE);
+        }
+        sleep(1);
     }
 
-    LOG(LOG_LVL_DEBUG, "%s, %d: End \n", __func__, __LINE__);
+    LOG(LOG_LVL_DEBUG, "%s, %d: End", __func__, __LINE__);
 }
 
 /* Describes: Searches for a file in a directory. When it finds a file that matches the name
@@ -360,7 +517,7 @@ void create_and_add_chain()
  */
 int find_file_in_directory(const char *directory_path, const char *filename, char *found_path)
 {
-    //LOG(LOG_LVL_DEBUG, "%s, %d: Start \n", __func__, __LINE__);
+    // LOG(LOG_LVL_DEBUG, "%s, %d: Start", __func__, __LINE__);
 
     DIR *directory;
     struct dirent *directory_entry;
@@ -370,7 +527,7 @@ int find_file_in_directory(const char *directory_path, const char *filename, cha
     directory = opendir(directory_path);
     if (directory == NULL)
     {
-        LOG(LOG_LVL_WARN, "%s, %d. End. Unable to open directory in directory: %s \n", __func__, __LINE__, directory);
+        LOG(LOG_LVL_WARN, "%s, %d. End. Unable to open directory in directory: %s", __func__, __LINE__, directory);
         return 0;
     }
 
@@ -405,23 +562,23 @@ int find_file_in_directory(const char *directory_path, const char *filename, cha
     }
     closedir(directory);
 
-    //LOG(LOG_LVL_DEBUG, "%s, %d: End \n", __func__, __LINE__);
+    // LOG(LOG_LVL_DEBUG, "%s, %d: End", __func__, __LINE__);
     return 0;
 }
 
-/* Describes: This function checks whether a given file is empty by determining its size.  
- *  
- * Parameter:  
- *      - file_path: The path to the file that needs to be checked.  
- *  
- * Return:  
+/* Describes: This function checks whether a given file is empty by determining its size.
+ *
+ * Parameter:
+ *      - file_path: The path to the file that needs to be checked.
+ *
+ * Return:
  *      1: if the file is empty
  *      0: if it is not empty
  *     -1: if the file cannot be opened
- */  
+ */
 int is_empty_file(const char *file_path)
-{   
-    LOG(LOG_LVL_DEBUG, "%s, %d: Start \n", __func__, __LINE__);
+{
+    LOG(LOG_LVL_DEBUG, "%s, %d: Start", __func__, __LINE__);
 
     long file_size;
     FILE *file;
@@ -430,19 +587,19 @@ int is_empty_file(const char *file_path)
     if (file == NULL)
     {
         perror("Failed to open file");
-        LOG(LOG_LVL_WARN, "%s, %d: Failed to open file. \n", __func__, __LINE__);
+        LOG(LOG_LVL_WARN, "%s, %d: Failed to open file.", __func__, __LINE__);
         return -1;
     }
     fseek(file, 0, SEEK_END);
     file_size = ftell(file);
     fclose(file);
 
-    LOG(LOG_LVL_DEBUG, "%s, %d: End \n", __func__, __LINE__);
+    LOG(LOG_LVL_DEBUG, "%s, %d: End", __func__, __LINE__);
 
     return (file_size == 0);
 }
 
-/* Describes: This function creates a new ipset from a file if the ipset does not already exist. 
+/* Describes: This function creates a new ipset from a file if the ipset does not already exist.
  *
  * Parameter:
  *      - filename: The name of the ipset to be created.
@@ -451,8 +608,8 @@ int is_empty_file(const char *file_path)
  *      Creates a new ipset if it does not already exist and logs the operation.
  */
 void create_ipset_in_file(char *filename)
-{   
-    //LOG(LOG_LVL_DEBUG, "%s, %d: Start \n", __func__, __LINE__);
+{
+    // LOG(LOG_LVL_DEBUG, "%s, %d: Start", __func__, __LINE__);
 
     if (!check_ipset_exists(filename))
     {
@@ -460,7 +617,7 @@ void create_ipset_in_file(char *filename)
         system(command);
     }
 
-    //LOG(LOG_LVL_DEBUG, "%s, %d: End \n", __func__, __LINE__);
+    // LOG(LOG_LVL_DEBUG, "%s, %d: End", __func__, __LINE__);
 }
 
 void run_command(const char *command)
@@ -473,20 +630,20 @@ void run_command(const char *command)
     }
 }
 
-/* Describes: This function reads a list of IP addresses from a file and adds them to an ipset  
- *            if they do not already exist.  
- *  
- * Parameters:  
- *      - filepath: The path to the file containing the list of IP addresses.  
- *      - filename: The name of the ipset where the IPs will be added.  
- *  
- * Output:  
- *      Reads each IP from the file, checks if it exists in the ipset, and adds it if not present.   
- */ 
+/* Describes: This function reads a list of IP addresses from a file and adds them to an ipset
+ *            if they do not already exist.
+ *
+ * Parameters:
+ *      - filepath: The path to the file containing the list of IP addresses.
+ *      - filename: The name of the ipset where the IPs will be added.
+ *
+ * Output:
+ *      Reads each IP from the file, checks if it exists in the ipset, and adds it if not present.
+ */
 void add_list_ip_from_file(char *filepath, char *ipset_name)
 {
-    LOG(LOG_LVL_DEBUG, "%s, %d: Start \n", __func__, __LINE__);
-    
+    LOG(LOG_LVL_DEBUG, "%s, %d: Start", __func__, __LINE__);
+
     FILE *file;
     char ip[MAX_IP_LENGTH];
 
@@ -494,7 +651,7 @@ void add_list_ip_from_file(char *filepath, char *ipset_name)
     if (file == NULL)
     {
         perror("Unable to open file");
-        LOG(LOG_LVL_WARN, "%s, %d: End. Unable to open file in: %s \n", __func__, __LINE__, filepath);
+        LOG(LOG_LVL_WARN, "%s, %d: End. Unable to open file in: %s", __func__, __LINE__, filepath);
         return;
     }
 
@@ -511,11 +668,11 @@ void add_list_ip_from_file(char *filepath, char *ipset_name)
         }
     }
     fclose(file);
-    
-    LOG(LOG_LVL_DEBUG, "%s, %d. End \n", __func__, __LINE__);
+
+    LOG(LOG_LVL_DEBUG, "%s, %d. End", __func__, __LINE__);
 }
 
-/* Describes: This function checks if an ipset exists, and if it does, deletes it 
+/* Describes: This function checks if an ipset exists, and if it does, deletes it
  *            from the chain along with its associated MAC address.
  *
  * Parameters:
@@ -528,8 +685,8 @@ void add_list_ip_from_file(char *filepath, char *ipset_name)
  *          - Delete the ipset associated with the specified MAC address.
  */
 void check_and_delete_ipset_have_mac_to_chain(char *url, char *mac, long start_block_time)
-{   
-    LOG(LOG_LVL_DEBUG, "%s, %d. Start \n", __func__, __LINE__);
+{
+    LOG(LOG_LVL_DEBUG, "%s, %d. Start", __func__, __LINE__);
 
     char ipset_name[256];
     snprintf(ipset_name, sizeof(ipset_name), "%s_%ld", url, start_block_time);
@@ -540,10 +697,10 @@ void check_and_delete_ipset_have_mac_to_chain(char *url, char *mac, long start_b
         delete_ipset_have_mac_to_chain(ipset_name, mac);
     }
 
-    LOG(LOG_LVL_DEBUG, "%s, %d. End \n", __func__, __LINE__);
+    LOG(LOG_LVL_DEBUG, "%s, %d. End", __func__, __LINE__);
 }
 
-/* Describes: This function checks and removes an ipset associated with a URL 
+/* Describes: This function checks and removes an ipset associated with a URL
  *            and not containing a MAC address from the block chain if it exists.
  *
  * Parameters:
@@ -554,8 +711,8 @@ void check_and_delete_ipset_have_mac_to_chain(char *url, char *mac, long start_b
  *          - If ipset exists, it will be removed from the blocking chain.
  */
 void check_and_delete_ipset_to_chain(char *url, long start_block_time)
-{   
-    LOG(LOG_LVL_DEBUG, "%s, %d. Start \n", __func__, __LINE__);
+{
+    LOG(LOG_LVL_DEBUG, "%s, %d. Start", __func__, __LINE__);
 
     char ipset_name[256];
     snprintf(ipset_name, sizeof(ipset_name), "%s_%ld", url, start_block_time);
@@ -566,27 +723,27 @@ void check_and_delete_ipset_to_chain(char *url, long start_block_time)
         delete_ipset_to_chain(ipset_name);
     }
 
-    LOG(LOG_LVL_DEBUG, "%s, %d. End \n", __func__, __LINE__);
+    LOG(LOG_LVL_DEBUG, "%s, %d. End", __func__, __LINE__);
 }
 
-/* Describes: This function creates an ipset, associates it with a MAC address,  
- *            and adds IP addresses to the ipset from a specified file or an existing domain file.  
- *  
- * Parameters:  
- *      - filepath: The path to the file containing the list of IP addresses.  
- *      - url: The URL used to generate the ipset name.  
- *      - mac: The MAC address associated with the ipset.  
- *      - start_block_time: The timestamp used to create a unique ipset name.  
- *  
- * Output:  
- *      - Creates a new ipset with a name based on the URL and timestamp.  
- *      - Links the ipset to the specified MAC address.  
- *      - Searches for an existing file in the domain directory.  
- *      - Adds IP addresses to the ipset from the found file or the provided file.   
- */ 
+/* Describes: This function creates an ipset, associates it with a MAC address,
+ *            and adds IP addresses to the ipset from a specified file or an existing domain file.
+ *
+ * Parameters:
+ *      - filepath: The path to the file containing the list of IP addresses.
+ *      - url: The URL used to generate the ipset name.
+ *      - mac: The MAC address associated with the ipset.
+ *      - start_block_time: The timestamp used to create a unique ipset name.
+ *
+ * Output:
+ *      - Creates a new ipset with a name based on the URL and timestamp.
+ *      - Links the ipset to the specified MAC address.
+ *      - Searches for an existing file in the domain directory.
+ *      - Adds IP addresses to the ipset from the found file or the provided file.
+ */
 void find_file_create_chain_and_add_ipset_have_mac(char *filepath, char *url, char *mac, long start_block_time)
-{   
-    LOG(LOG_LVL_DEBUG, "%s, %d. Start \n", __func__, __LINE__);
+{
+    LOG(LOG_LVL_DEBUG, "%s, %d. Start", __func__, __LINE__);
 
     char ipset_name[256], file_in_domain_folder[MAX_PATH_LENGTH];
 
@@ -610,25 +767,25 @@ void find_file_create_chain_and_add_ipset_have_mac(char *filepath, char *url, ch
         add_list_ip_from_file(filepath, ipset_name);
     }
 
-    LOG(LOG_LVL_DEBUG, "%s, %d. End \n", __func__, __LINE__);
+    LOG(LOG_LVL_DEBUG, "%s, %d. End", __func__, __LINE__);
 }
 
-/* Describes: This function creates an ipset, and adds IP addresses to the ipset 
- *            from a specified file or an existing domain file.  
- *  
- * Parameters:  
- *      - filepath: The path to the file containing the list of IP addresses.  
- *      - url: The URL used to generate the ipset name.  
- *      - start_block_time: The timestamp used to create a unique ipset name.  
- *  
- * Output:  
- *      - Creates a new ipset with a name based on the URL and timestamp.  
- *      - Searches for an existing file in the domain directory.  
- *      - Adds IP addresses to the ipset from the found file or the provided file.  
- */ 
+/* Describes: This function creates an ipset, and adds IP addresses to the ipset
+ *            from a specified file or an existing domain file.
+ *
+ * Parameters:
+ *      - filepath: The path to the file containing the list of IP addresses.
+ *      - url: The URL used to generate the ipset name.
+ *      - start_block_time: The timestamp used to create a unique ipset name.
+ *
+ * Output:
+ *      - Creates a new ipset with a name based on the URL and timestamp.
+ *      - Searches for an existing file in the domain directory.
+ *      - Adds IP addresses to the ipset from the found file or the provided file.
+ */
 void find_file_create_chain_and_add_ipset(char *filepath, char *url, long start_block_time)
-{   
-    LOG(LOG_LVL_DEBUG, "%s, %d. Start \n", __func__, __LINE__);
+{
+    LOG(LOG_LVL_DEBUG, "%s, %d. Start", __func__, __LINE__);
 
     char ipset_name[256], file_in_domain_folder[MAX_PATH_LENGTH];
 
@@ -652,7 +809,7 @@ void find_file_create_chain_and_add_ipset(char *filepath, char *url, long start_
         add_list_ip_from_file(filepath, ipset_name);
     }
 
-    LOG(LOG_LVL_DEBUG, "%s, %d. End \n", __func__, __LINE__);
+    LOG(LOG_LVL_DEBUG, "%s, %d. End", __func__, __LINE__);
 }
 
 /* Description: Processes a list of domain information and manages IP sets based on time-based access rules.
@@ -667,8 +824,8 @@ void find_file_create_chain_and_add_ipset(char *filepath, char *url, long start_
  * - Updates IP sets by adding or removing entries based on the blocking time rules.
  */
 void create_and_add_ipset_ip_db(char *filename, char *filepath)
-{   
-    LOG(LOG_LVL_DEBUG, "%s, %d. Start \n", __func__, __LINE__);
+{
+    LOG(LOG_LVL_DEBUG, "%s, %d. Start", __func__, __LINE__);
 
     domain_info *list;
     time_t current_time;
@@ -796,13 +953,12 @@ void create_and_add_ipset_ip_db(char *filename, char *filepath)
             }
         }
     }
-    LOG(LOG_LVL_DEBUG, "%s, %d. End \n", __func__, __LINE__);
+    LOG(LOG_LVL_DEBUG, "%s, %d. End", __func__, __LINE__);
 }
-
 
 void BI_run_block_ip()
 {
-    LOG(LOG_LVL_DEBUG, "%s, %d. Start \n", __func__, __LINE__);
+    LOG(LOG_LVL_DEBUG, "%s, %d. Start", __func__, __LINE__);
 
     int num_web = 0;
     create_and_add_chain();
@@ -816,10 +972,8 @@ void BI_run_block_ip()
         }
     }
 
-    LOG(LOG_LVL_DEBUG, "%s, %d. End \n", __func__, __LINE__);
+    LOG(LOG_LVL_DEBUG, "%s, %d. End", __func__, __LINE__);
 }
-
-
 
 // int cleanup_chain(const char *chain_name) {
 //     char command[256];

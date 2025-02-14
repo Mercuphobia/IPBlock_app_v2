@@ -10,7 +10,7 @@ char line[256];
 
 bool PD_is_line_in_file(FILE *file, const char *line)
 {   
-    LOG(LOG_LVL_DEBUG, "%s, %d. Start. \n", __func__, __LINE__);
+    LOG(LOG_LVL_DEBUG, "%s, %d. Start. ", __func__, __LINE__);
 
     char buffer[256];
 
@@ -19,12 +19,12 @@ bool PD_is_line_in_file(FILE *file, const char *line)
     {
         if (strcmp(buffer, line) == 0)
         {   
-            LOG(LOG_LVL_DEBUG, "%s, %d. End. \n", __func__, __LINE__);
+            LOG(LOG_LVL_DEBUG, "%s, %d. End. ", __func__, __LINE__);
             return true;           
         }
     }
 
-    LOG(LOG_LVL_DEBUG, "%s, %d. End. \n", __func__, __LINE__);
+    LOG(LOG_LVL_DEBUG, "%s, %d. End. ", __func__, __LINE__);
     return false;
 }
 
@@ -40,7 +40,7 @@ bool PD_is_line_in_file(FILE *file, const char *line)
  */
 long convert_to_seconds(const char *day, const char *time)
 {   
-    LOG(LOG_LVL_DEBUG, "%s, %d. Start. day: %s, time: %s\n", __func__, __LINE__, day, time);
+    LOG(LOG_LVL_DEBUG, "%s, %d. Start. day: %s, time: %s", __func__, __LINE__, day, time);
 
     int day_number;
     int hours, minutes;
@@ -50,20 +50,20 @@ long convert_to_seconds(const char *day, const char *time)
     if (day_number == -1)
     {
         PRINTF("Invalid day: %s\n", day);
-        LOG(LOG_LVL_WARN, "%s, %d. End. Invalid day: %s  \n", __func__, __LINE__, day);
+        LOG(LOG_LVL_WARN, "%s, %d. End. Invalid day: %s  ", __func__, __LINE__, day);
         return -1;
     }
     
     sscanf(time, "%d:%d", &hours, &minutes);
     total_seconds = day_number * 86400 + hours * 3600 + minutes * 60;
 
-    LOG(LOG_LVL_DEBUG, "%s, %d. End. total_seconds: %ld\n", __func__, __LINE__, total_seconds);
+    LOG(LOG_LVL_DEBUG, "%s, %d. End. total_seconds: %ld", __func__, __LINE__, total_seconds);
     return total_seconds;
 }
 
 website_block *PD_get_list_block_web(const char *filename, int *line_count)
 {   
-    LOG(LOG_LVL_DEBUG, "%s, %d. Start \n", __func__, __LINE__);
+    LOG(LOG_LVL_DEBUG, "%s, %d. Start ", __func__, __LINE__);
     
     website_block *list_block_web = NULL;
     *line_count = 0;
@@ -74,13 +74,13 @@ website_block *PD_get_list_block_web(const char *filename, int *line_count)
     list_block_web = malloc(number_struct * sizeof(website_block));
     if (list_block_web == NULL)
     {
-        LOG(LOG_LVL_ERROR, "%s, %d. End. Unable to allocate memory \n", __func__, __LINE__);
+        LOG(LOG_LVL_ERROR, "%s, %d. End. Unable to allocate memory ", __func__, __LINE__);
         exit(EXIT_FAILURE);
     }
     file = fopen(filename, "r");
     if (file == NULL)
     {
-        LOG(LOG_LVL_ERROR, "%s, %d. End. Unable to open file %s \n", __func__, __LINE__, filename);
+        LOG(LOG_LVL_ERROR, "%s, %d. End. Unable to open file %s ", __func__, __LINE__, filename);
         free(list_block_web);
         exit(EXIT_FAILURE);
     }
@@ -92,7 +92,7 @@ website_block *PD_get_list_block_web(const char *filename, int *line_count)
             list_block_web = realloc(list_block_web, number_struct * sizeof(website_block));
             if (list_block_web == NULL)
             {
-                LOG(LOG_LVL_ERROR, "%s, %d. End. Unable to allocate memory \n", __func__, __LINE__);
+                LOG(LOG_LVL_ERROR, "%s, %d. End. Unable to allocate memory ", __func__, __LINE__);
                 fclose(file);
                 exit(EXIT_FAILURE);
             }
@@ -153,14 +153,14 @@ website_block *PD_get_list_block_web(const char *filename, int *line_count)
     }
     fclose(file);
 
-    LOG(LOG_LVL_DEBUG, "%s, %d. End. number of block_web = %d \n", __func__, __LINE__, *line_count);
+    LOG(LOG_LVL_DEBUG, "%s, %d. End. number of block_web = %d ", __func__, __LINE__, *line_count);
 
     return list_block_web;
 }
 
 domain_info *PD_get_list_domain_info(const char *filename, int *list_domain)
 {   
-    LOG(LOG_LVL_DEBUG, "%s, %d. Start. \n", __func__, __LINE__);
+    LOG(LOG_LVL_DEBUG, "%s, %d. Start. ", __func__, __LINE__);
 
     domain_info *list = NULL;
     *list_domain = 0;
@@ -171,14 +171,14 @@ domain_info *PD_get_list_domain_info(const char *filename, int *list_domain)
     list = malloc(number_struct * sizeof(domain_info));
     if (list == NULL)
     {
-        LOG(LOG_LVL_WARN, "%s, %d. End. Unable to allocate memory \n", __func__, __LINE__);
+        LOG(LOG_LVL_WARN, "%s, %d. End. Unable to allocate memory ", __func__, __LINE__);
         return NULL;
     }
 
     file = fopen(filename, "r");
     if (file == NULL)
     {
-        LOG(LOG_LVL_WARN, "%s, %d. End. Unable to open file \n", __func__, __LINE__);
+        LOG(LOG_LVL_WARN, "%s, %d. End. Unable to open file ", __func__, __LINE__);
         free(list);
         return NULL;
     }
@@ -192,7 +192,7 @@ domain_info *PD_get_list_domain_info(const char *filename, int *list_domain)
             if (list == NULL)
             {
                 //perror("Unable to allocate memory");
-                LOG(LOG_LVL_WARN, "%s, %d. End. Unable to allocate memory \n", __func__, __LINE__);
+                LOG(LOG_LVL_WARN, "%s, %d. End. Unable to allocate memory ", __func__, __LINE__);
                 fclose(file);
                 return NULL;
             }
@@ -208,7 +208,7 @@ domain_info *PD_get_list_domain_info(const char *filename, int *list_domain)
     }
 
     fclose(file);
-    LOG(LOG_LVL_DEBUG, "%s, %d. End. number list_domain_info: %d \n", __func__, __LINE__, *list_domain);
+    LOG(LOG_LVL_DEBUG, "%s, %d. End. number list_domain_info: %d ", __func__, __LINE__, *list_domain);
 
     return list;
 }
@@ -225,7 +225,7 @@ domain_info *PD_get_list_domain_info(const char *filename, int *list_domain)
  *   - The domain name is taken as the substring before the first '.'.
  */
 void extract_domain(const char* url, char* domain) {
-    LOG(LOG_LVL_DEBUG, "%s, %d. Start \n", __func__, __LINE__);
+    LOG(LOG_LVL_DEBUG, "%s, %d. Start ", __func__, __LINE__);
 
     char *start, *dot;
     size_t len;
@@ -245,7 +245,7 @@ void extract_domain(const char* url, char* domain) {
     } else {
         strcpy(domain, start);
     }
-    LOG(LOG_LVL_DEBUG, "%s, %d. End. url: %s -> domain: %s \n", __func__, __LINE__, url, domain);
+    LOG(LOG_LVL_DEBUG, "%s, %d. End. url: %s -> domain: %s ", __func__, __LINE__, url, domain);
 }
 
 /* Description: Reads a list of blocked websites and writes domain information to a file if not already present.
@@ -258,7 +258,7 @@ void extract_domain(const char* url, char* domain) {
  * - Appends domain information to the specified file if the entry does not already exist.
  */
 void PD_printf_domain_name_to_file(const char* filename) {
-    LOG(LOG_LVL_DEBUG, "%s, %d. Start \n", __func__, __LINE__);
+    LOG(LOG_LVL_DEBUG, "%s, %d. Start ", __func__, __LINE__);
 
     int result_count = 0;
     website_block *list_block;
@@ -268,7 +268,7 @@ void PD_printf_domain_name_to_file(const char* filename) {
 
     file = fopen(filename, "a+");
     if (file == NULL) {
-        LOG(LOG_LVL_ERROR, "%s, %d. End. Unable to open file %s \n", __func__, __LINE__, filename);
+        LOG(LOG_LVL_ERROR, "%s, %d. End. Unable to open file %s ", __func__, __LINE__, filename);
         exit(EXIT_FAILURE);
     }
 
@@ -289,5 +289,5 @@ void PD_printf_domain_name_to_file(const char* filename) {
     fclose(file);
     free(list_block);
 
-    LOG(LOG_LVL_DEBUG, "%s, %d. End \n", __func__, __LINE__);
+    LOG(LOG_LVL_DEBUG, "%s, %d. End ", __func__, __LINE__);
 }

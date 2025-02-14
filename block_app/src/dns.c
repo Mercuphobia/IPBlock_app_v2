@@ -20,20 +20,20 @@
 
 int DNS_get_dns_query_length(unsigned char *dns_query)
 {   
-    //LOG(LOG_LVL_DEBUG, "%s, %d: Start \n", __func__, __LINE__);
+    //LOG(LOG_LVL_DEBUG, "%s, %d: Start ", __func__, __LINE__);
     int name_length = 0;
     while (dns_query[name_length] != 0)
     {
         name_length += dns_query[name_length] + ONE_BYTE;
     }
-    //LOG(LOG_LVL_DEBUG, "%s, %d. End. with query_length = %d \n", __func__, __LINE__, name_length + ONE_BYTE + FOUR_BYTE);
+    //LOG(LOG_LVL_DEBUG, "%s, %d. End. with query_length = %d ", __func__, __LINE__, name_length + ONE_BYTE + FOUR_BYTE);
 
     return name_length + ONE_BYTE + FOUR_BYTE;
 }
 
 void DNS_decode_dns_name_answer(unsigned char *dns_packet, unsigned char *buffer, int *offset, int start)
 {   
-    //LOG(LOG_LVL_DEBUG, "%s, %d: Start \n", __func__, __LINE__);
+    //LOG(LOG_LVL_DEBUG, "%s, %d: Start ", __func__, __LINE__);
 
     int i = start, j = 0, jumped = 0, jump_offset = 0, pointer_offset, len;
 
@@ -71,12 +71,12 @@ void DNS_decode_dns_name_answer(unsigned char *dns_packet, unsigned char *buffer
         *offset = i + 1;
     }
 
-    //LOG(LOG_LVL_DEBUG, "%s, %d: End \n", __func__, __LINE__);
+    //LOG(LOG_LVL_DEBUG, "%s, %d: End ", __func__, __LINE__);
 }
 
 unsigned char *get_dns_answer_name(unsigned char *dns_packet, int answer_offset)
 {   
-    //LOG(LOG_LVL_DEBUG, "%s, %d: Start \n", __func__, __LINE__);
+    //LOG(LOG_LVL_DEBUG, "%s, %d: Start ", __func__, __LINE__);
 
     unsigned char *decoded_name = malloc(256);
     int offset = 0;
@@ -84,12 +84,12 @@ unsigned char *get_dns_answer_name(unsigned char *dns_packet, int answer_offset)
     if (decoded_name == NULL)
     {
         PRINTF("Memory allocation failed\n");
-        //LOG(LOG_LVL_WARN, "%s, %d: End. Memory allocation failed \n", __func__, __LINE__);
+        //LOG(LOG_LVL_WARN, "%s, %d: End. Memory allocation failed ", __func__, __LINE__);
         return NULL;
     }
     DNS_decode_dns_name_answer(dns_packet, decoded_name, &offset, answer_offset);
 
-    //LOG(LOG_LVL_DEBUG, "%s, %d: End. decoded_name = %s \n", __func__, __LINE__, decoded_name);
+    //LOG(LOG_LVL_DEBUG, "%s, %d: End. decoded_name = %s ", __func__, __LINE__, decoded_name);
     return decoded_name;
 }
 
@@ -106,14 +106,14 @@ unsigned char *get_dns_answer_name(unsigned char *dns_packet, int answer_offset)
  */
 int find_file_in_subfolders(const char *dir_path, const char *filename, char *found_path)
 {   
-    //LOG(LOG_LVL_DEBUG, "%s, %d: Start \n", __func__, __LINE__);
+    //LOG(LOG_LVL_DEBUG, "%s, %d: Start ", __func__, __LINE__);
     DIR *dir = opendir(dir_path);
     if (dir == NULL)
     {
         perror("Unable to open directory");
         LOG(LOG_LVL_ERROR, "end find_file_in_subfolders(). Unable to open directory %s, %s, %s, %s, %d\n",
                             dir_path, filename,  __FILE__, __func__, __LINE__);
-        //LOG(LOG_LVL_WARN, "%s, %d: End. Unable to open directory %s  \n", __func__, __LINE__, dir_path);
+        //LOG(LOG_LVL_WARN, "%s, %d: End. Unable to open directory %s  ", __func__, __LINE__, dir_path);
         return 0;
     }
     struct dirent *entry;
@@ -149,7 +149,7 @@ int find_file_in_subfolders(const char *dir_path, const char *filename, char *fo
         }
     }
     closedir(dir);
-    //LOG(LOG_LVL_DEBUG, "%s, %d: End. \n", __func__, __LINE__);
+    //LOG(LOG_LVL_DEBUG, "%s, %d: End. ", __func__, __LINE__);
     return 0;
 }
 
@@ -167,7 +167,7 @@ int find_file_in_subfolders(const char *dir_path, const char *filename, char *fo
 */
 void create_file_if_not_exists(const char *folder, const char *website_name, int is_domain)
 {   
-    LOG(LOG_LVL_DEBUG, "%s, %d: Start website_name_path: %s\n", __func__, __LINE__, website_name);
+    LOG(LOG_LVL_DEBUG, "%s, %d: Start website_name_path: %s", __func__, __LINE__, website_name);
 
     char result_path[512], filepath[512];
     FILE *file;
@@ -187,13 +187,13 @@ void create_file_if_not_exists(const char *folder, const char *website_name, int
         if (file == NULL)
         {
             fprintf(stderr, "Unable to create file: %s\n", filepath);
-            LOG(LOG_LVL_WARN, "%s, %d: End Unable to create file: %s\n", __func__, __LINE__, filepath);
+            LOG(LOG_LVL_WARN, "%s, %d: End Unable to create file: %s", __func__, __LINE__, filepath);
             return;
         }
         fclose(file);
     }
 
-    LOG(LOG_LVL_DEBUG, "%s, %d: End \n", __func__, __LINE__);
+    LOG(LOG_LVL_DEBUG, "%s, %d: End ", __func__, __LINE__);
 }
 
 /* Description: Writes an IP address to a file if it does not already exist in the file.  
@@ -208,7 +208,7 @@ void create_file_if_not_exists(const char *folder, const char *website_name, int
  */
 void write_ip_to_file(const char *website_name, const char *file_path, const char *ip_str)
 {   
-    LOG(LOG_LVL_DEBUG, "%s, %d: Start website_name: %s, ip: %s \n", __func__, __LINE__, website_name, ip_str);
+    LOG(LOG_LVL_DEBUG, "%s, %d: Start website_name: %s, ip: %s ", __func__, __LINE__, website_name, ip_str);
 
     char line[512];
     bool ip_found = false;
@@ -218,9 +218,7 @@ void write_ip_to_file(const char *website_name, const char *file_path, const cha
     if (file == NULL)
     {
         fprintf(stderr, "Unable to open file: %s\n", file_path);
-        LOG(LOG_LVL_WARN, "end write_ip_to_file(). Unable to open file %s, %s, %s, %s, %d\n", 
-                            file_path, ip_str,  __FILE__, __func__, __LINE__);
-        LOG(LOG_LVL_WARN, "%s, %d: End. . Unable to open file %s \n", __func__, __LINE__, file_path);
+        LOG(LOG_LVL_WARN, "%s, %d: End. . Unable to open file %s ", __func__, __LINE__, file_path);
         return;
     }
     fseek(file, 0, SEEK_SET);
@@ -250,7 +248,7 @@ void write_ip_to_file(const char *website_name, const char *file_path, const cha
     }
 
     fclose(file);
-    LOG(LOG_LVL_DEBUG, "%s, %d: End \n", __func__, __LINE__);
+    LOG(LOG_LVL_DEBUG, "%s, %d: End ", __func__, __LINE__);
 }
 
 /* Description: Extracts the website name from the given domain or URL. 
@@ -267,7 +265,7 @@ void write_ip_to_file(const char *website_name, const char *file_path, const cha
  */
 char *get_website_name_from_domain_name(const char *domain_name)
 {   
-    LOG(LOG_LVL_DEBUG, "%s, %d: Start \n", __func__, __LINE__);
+    LOG(LOG_LVL_DEBUG, "%s, %d: Start ", __func__, __LINE__);
 
     char buffer[256];
     char *token, *name = NULL;
@@ -300,7 +298,7 @@ char *get_website_name_from_domain_name(const char *domain_name)
         name = token;
     }
 
-    LOG(LOG_LVL_DEBUG, "%s, %d: End. name = %s\n", __func__, __LINE__, name);
+    LOG(LOG_LVL_DEBUG, "%s, %d: End. name = %s", __func__, __LINE__, name);
     return name;
 }
 
@@ -320,7 +318,7 @@ char *get_website_name_from_domain_name(const char *domain_name)
 void DNS_process_dns_answer_and_save_ip_in_folder(unsigned char *dns_answer, unsigned char *dns_payload_content, 
                                     unsigned char *folder, int is_domain)
 {
-    //LOG(LOG_LVL_DEBUG, "%s, %d: Start \n", __func__, __LINE__);
+    //LOG(LOG_LVL_DEBUG, "%s, %d: Start ", __func__, __LINE__);
 
     int answer_offset = 0, name_length = 0;
     unsigned short type, data_len;
@@ -368,5 +366,5 @@ void DNS_process_dns_answer_and_save_ip_in_folder(unsigned char *dns_answer, uns
         }
     }
 
-    //LOG(LOG_LVL_DEBUG, "%s, %d: End \n", __func__, __LINE__);
+    //LOG(LOG_LVL_DEBUG, "%s, %d: End ", __func__, __LINE__);
 }
