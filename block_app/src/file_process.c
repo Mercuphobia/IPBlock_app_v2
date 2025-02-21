@@ -8,9 +8,9 @@
 #include "log.h"
 #include "defines.h"
 
-char DEFAULT_CONFIG_FILE[MAX_PATH_LENGTH] = "/home/test/etc/config/app_config.txt";
+// char DEFAULT_CONFIG_FILE[MAX_PATH_LENGTH] = "/home/test/etc/config/app_config.txt";
 
-// char DEFAULT_CONFIG_FILE[MAX_PATH_LENGTH] = "/etc/config/app_config.txt";
+char DEFAULT_CONFIG_FILE[MAX_PATH_LENGTH] = "/etc/config/app_config.txt";
 
 char SRC_WEB_BLOCK_PATH[MAX_PATH_LENGTH] = "../../webserver/config/url_data.txt";
 char DOMAIN_NAME_TXT_PATH[MAX_PATH_LENGTH] = "../../block_app/data/domain_name.txt";
@@ -39,7 +39,9 @@ int get_config_value(const char *key, char *value, size_t value_size) {
     file = fopen(DEFAULT_CONFIG_FILE, "r");
     if (!file) {
         perror("Failed to open config file");
-        exit(EXIT_FAILURE);
+        LOG(LOG_LVL_WARN, "%s, %d. Failed to open config file. Run with default config", __func__, __LINE__);
+        //exit(EXIT_FAILURE);
+        return -1;
     }
     while (fgets(line, sizeof(line), file)) {
         start = line;
@@ -76,7 +78,8 @@ int get_config_value(const char *key, char *value, size_t value_size) {
 }
 
 void FP_init_path()
-{
+{   
+    LOG(LOG_LVL_DEBUG, "%s, %d. Start", __func__, __LINE__);
     char temp_value[MAX_PATH_LENGTH];
 
     if (get_config_value("DEFAULT_CONFIG_FILE", temp_value, sizeof(temp_value)) == 0) {
@@ -102,6 +105,8 @@ void FP_init_path()
     if (get_config_value("DOMAIN_DIR", temp_value, sizeof(temp_value)) == 0) {
         snprintf(DOMAIN_DIR, sizeof(DOMAIN_DIR), "%s", temp_value);
     }
+
+    LOG(LOG_LVL_DEBUG, "%s, %d. End", __func__, __LINE__);
 }
 
 FILE *open_file(const char *file_name, const char *mode)

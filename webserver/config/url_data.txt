@@ -1,5 +1,3 @@
-thanhnien, all, Monday 11:11, Saturday 11:11
-dantri, all, Monday 11:11, Saturday 11:11
-vtcnews, all, Monday 11:11, Saturday 11:11
-tuoitre, all, Monday 11:11, Saturday 11:11
-youtube, all, Monday 11:11, Saturday 11:11
+dantri, all, Monday 08:00, Saturday 11:11
+thanhnien, all, Monday 08:00, Saturday 11:11
+vtcnews, all, Monday 08:00, Saturday 11:11

@@ -42,16 +42,17 @@ void FP_create_empty_file(const char *filename);
  */
 void FP_copy_file(const char *input_file, const char *output_file);
 
-/* Describe: Copy the contents of one file to another file
+/* Describe: Initialize file paths by reading their values from a configuration file.
+ *
+ * This function reads the values of several configuration keys from a configuration file and updates
+ * the corresponding global variables with these values. If a key is not found in the configuration file,
+ * the global variable retains its default value.
  *
  * Parameters:
- *   input file: Source file to copy
- *   output file: Destination file to copy data to
+ *   None
  *
  * Output:
- *   If the function executes successfully, it will copy the contents from the source file to the destination file without
- *   Exit the program if the source or destination file cannot be opened, so if there is an error,
- *   the function will stop the program and print the error.
+ *   None
  */
 void FP_init_path();
 

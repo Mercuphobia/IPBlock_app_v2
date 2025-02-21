@@ -153,7 +153,7 @@ void add_rules_iptables()
 
         retry++;
         LOG(LOG_LVL_WARN, "%s, %d. Failed to create RESOLVE_CHAIN. Attempt %d", __func__, __LINE__, retry);
-        PRINTF("Failed to create RESOLVE_CHAIN. Attempt %d\n", retry);
+        //PRINTF("Failed to create RESOLVE_CHAIN. Attempt %d\n", retry);
 
         if (retry >= 3)
         {
@@ -176,7 +176,7 @@ void add_rules_iptables()
 
         retry++;
         LOG(LOG_LVL_WARN, "%s, %d. Failed to create INPUT RESOLVE_CHAIN. Attempt %d", __func__, __LINE__, retry);
-        PRINTF("Failed to create INPUT RESOLVE_CHAIN. Attempt %d\n", retry);
+        //PRINTF("Failed to create INPUT RESOLVE_CHAIN. Attempt %d\n", retry);
 
         if (retry >= 3)
         {
@@ -199,7 +199,7 @@ void add_rules_iptables()
 
         retry++;
         LOG(LOG_LVL_WARN, "%s, %d. Failed to create OUTPUT RESOLVE_CHAIN. Attempt %d", __func__, __LINE__, retry);
-        PRINTF("Failed to create OUTPUT RESOLVE_CHAIN. Attempt %d\n", retry);
+        //PRINTF("Failed to create OUTPUT RESOLVE_CHAIN. Attempt %d\n", retry);
 
         if (retry >= 3)
         {
@@ -222,7 +222,7 @@ void add_rules_iptables()
 
         retry++;
         LOG(LOG_LVL_WARN, "%s, %d. Failed to create FORWARD RESOLVE_CHAIN. Attempt %d", __func__, __LINE__, retry);
-        PRINTF("Failed to create FORWARD RESOLVE_CHAIN. Attempt %d\n", retry);
+        //PRINTF("Failed to create FORWARD RESOLVE_CHAIN. Attempt %d\n", retry);
 
         if (retry >= 3)
         {
@@ -245,7 +245,7 @@ void add_rules_iptables()
 
         retry++;
         LOG(LOG_LVL_WARN, "%s, %d. Failed to add DNS SPORT rule to RESOLVE_CHAIN. Attempt %d", __func__, __LINE__, retry);
-        PRINTF("Failed to add DNS SPORT rule to RESOLVE_CHAIN. Attempt %d\n", retry);
+        //PRINTF("Failed to add DNS SPORT rule to RESOLVE_CHAIN. Attempt %d\n", retry);
 
         if (retry >= 3)
         {
@@ -268,7 +268,7 @@ void add_rules_iptables()
 
         retry++;
         LOG(LOG_LVL_WARN, "%s, %d. Failed to add DNS DPORT rule to RESOLVE_CHAIN. Attempt %d", __func__, __LINE__, retry);
-        PRINTF("Failed to add DNS SPORT rule to RESOLVE_CHAIN. Attempt %d\n", retry);
+        //PRINTF("Failed to add DNS SPORT rule to RESOLVE_CHAIN. Attempt %d\n", retry);
 
         if (retry >= 3)
         {

@@ -50,9 +50,9 @@ void *block_ip(void *arg)
 }
 
 int main(int argc, char *argv[])
-{
-    FP_init_path();
+{   
     LOG(LOG_LVL_DEBUG, "%s, %d: Start ", __func__, __LINE__);
+    FP_init_path();
     PO_parsers_option(argc, argv);
     pthread_create(&thread1, NULL, resolve_ip, NULL);
     pthread_create(&thread2, NULL, block_ip, NULL);

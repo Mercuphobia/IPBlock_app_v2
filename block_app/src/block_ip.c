@@ -11,22 +11,22 @@
 #include "defines.h"
 
 // run board//
-// #define IPSET_LIST_NO_STDOUT "/userfs/bin/ipset list %s > /dev/null 2>&1"
-// #define IPSET_CREATE "/userfs/bin/ipset create %s hash:ip"
-// #define IPSET_ADD "/userfs/bin/ipset add %s %s"
-// #define IPSET_DELETE_RULE "/userfs/bin/ipset destroy %s_%ld > /dev/null 2>&1"
-// #define IPSET_TEST_RULE "/userfs/bin/ipset test %s %s > /dev/null 2>&1"
-// #define IPSET_CREATE_NET "/userfs/bin/ipset create %s hash:net timeout 10000"
-// #define IPSET_DELETE_RULE_NET "/userfs/bin/ipset destroy %s > /dev/null 2>&1"
+#define IPSET_LIST_NO_STDOUT "/userfs/bin/ipset list %s > /dev/null 2>&1"
+#define IPSET_CREATE "/userfs/bin/ipset create %s hash:ip"
+#define IPSET_ADD "/userfs/bin/ipset add %s %s"
+#define IPSET_DELETE_RULE "/userfs/bin/ipset destroy %s_%ld > /dev/null 2>&1"
+#define IPSET_TEST_RULE "/userfs/bin/ipset test %s %s > /dev/null 2>&1"
+#define IPSET_CREATE_NET "/userfs/bin/ipset create %s hash:net timeout 10000"
+#define IPSET_DELETE_RULE_NET "/userfs/bin/ipset destroy %s > /dev/null 2>&1"
 
 // // run vmware//
-#define IPSET_LIST_NO_STDOUT "ipset list %s > /dev/null 2>&1"
-#define IPSET_CREATE "ipset create %s hash:ip"
-#define IPSET_ADD "ipset add %s %s"
-#define IPSET_DELETE_RULE "ipset destroy %s_%ld > /dev/null 2>&1"
-#define IPSET_TEST_RULE "ipset test %s %s > /dev/null 2>&1"
-#define IPSET_CREATE_NET "ipset create %s hash:net timeout 10000"
-#define IPSET_DELETE_RULE_NET "ipset destroy %s > /dev/null 2>&1"
+// #define IPSET_LIST_NO_STDOUT "ipset list %s > /dev/null 2>&1"
+// #define IPSET_CREATE "ipset create %s hash:ip"
+// #define IPSET_ADD "ipset add %s %s"
+// #define IPSET_DELETE_RULE "ipset destroy %s_%ld > /dev/null 2>&1"
+// #define IPSET_TEST_RULE "ipset test %s %s > /dev/null 2>&1"
+// #define IPSET_CREATE_NET "ipset create %s hash:net timeout 10000"
+// #define IPSET_DELETE_RULE_NET "ipset destroy %s > /dev/null 2>&1"
 
 #define RULE_CREATE_CHAIN "iptables -N BLOCK_IP_CHAIN"
 #define CHECK_NAME_CHAIN "iptables -L BLOCK_IP_CHAIN >/dev/null 2>&1"
@@ -295,11 +295,6 @@ void create_and_add_chain()
 {
     LOG(LOG_LVL_DEBUG, "%s, %d: Start", __func__, __LINE__);
 
-    // if (system(CHECK_NAME_CHAIN) != 0)
-    // {
-    //     system(RULE_CREATE_CHAIN);
-    // }
-
     int retry = 0;
 
     while (system(CHECK_NAME_CHAIN) != 0)
@@ -322,13 +317,6 @@ void create_and_add_chain()
         }
         sleep(1);
     }
-
-    // if (system(CHECK_BLOCK_IP_CHAIN_INPUT) != 0)
-    // {
-    //     system(IP_TABLES_ADD_CHAIN_INPUT);
-    //     PRINTF("Added BLOCK_IP_CHAIN to INPUT chain.\n");
-    //     LOG(LOG_LVL_DEBUG, "%s, %d Printf Added BLOCK_IP_CHAIN to INPUT chain", __func__, __LINE__);
-    // }
 
     retry = 0;
     while (system(CHECK_BLOCK_IP_CHAIN_INPUT) != 0)
@@ -353,13 +341,6 @@ void create_and_add_chain()
         sleep(1);
     }
 
-    // if (system(CHECK_BLOCK_IP_CHAIN_OUTPUT) != 0)
-    // {
-    //     system(IP_TABLES_ADD_CHAIN_OUTPUT);
-    //     PRINTF("Added BLOCK_IP_CHAIN to OUTPUT chain.\n");
-    //     LOG(LOG_LVL_DEBUG, "%s, %d Printf Added BLOCK_IP_CHAIN to OUTPUT chain", __func__, __LINE__);
-    // }
-
     retry = 0;
     while (system(CHECK_BLOCK_IP_CHAIN_OUTPUT) != 0)
     {
@@ -383,12 +364,6 @@ void create_and_add_chain()
         sleep(1);
     }
 
-    // if (system(CHECK_BLOCK_IP_CHAIN_FORWARD) != 0)
-    // {
-    //     system(IP_TABLES_ADD_CHAIN_FORWARD);
-    //     PRINTF("Added BLOCK_IP_CHAIN to FORWARD chain.\n");
-    //     LOG(LOG_LVL_DEBUG, "%s, %d Printf Added BLOCK_IP_CHAIN to FORWARD chain", __func__, __LINE__);
-    // }
 
     retry = 0;
     while (system(CHECK_BLOCK_IP_CHAIN_FORWARD) != 0)
@@ -413,10 +388,6 @@ void create_and_add_chain()
         sleep(1);
     }
 
-    // if (system(CHECK_NAME_CHAIN_HAVE_MAC) != 0)
-    // {
-    //     system(RULE_CREATE_CHAIN_HAVE_MAC);
-    // }
 
     retry = 0;
     while (system(CHECK_NAME_CHAIN_HAVE_MAC) != 0)
@@ -440,13 +411,6 @@ void create_and_add_chain()
         sleep(1);
     }
 
-    // if (system(CHECK_BLOCK_IP_CHAIN_HAVE_MAC_INPUT) != 0)
-    // {
-    //     system(IP_TABLES_ADD_CHAIN_HAVE_MAC_INPUT);
-    //     PRINTF("Added BLOCK_IP_CHAIN_HAVE_MAC to INPUT chain.\n");
-    //     LOG(LOG_LVL_DEBUG, "%s, %d Printf Added BLOCK_IP_CHAIN_HAVE_MAC to INPUT chain:", __func__, __LINE__);
-    // }
-
     retry = 0;
     while (system(CHECK_BLOCK_IP_CHAIN_HAVE_MAC_INPUT) != 0)
     {
@@ -456,7 +420,7 @@ void create_and_add_chain()
             PRINTF("Added BLOCK_IP_CHAIN_HAVE_MAC to INPUT chain.\n");
             break;
         }
-
+        
         retry++;
         LOG(LOG_LVL_WARN, "%s, %d. Failed to create INPUT BLOCK_IP_CHAIN_HAVE_MAC. Attempt %d", __func__, __LINE__, retry);
         PRINTF("Failed to create INPUT BLOCK_IP_CHAIN_HAVE_MAC. Attempt %d\n", retry);
@@ -469,13 +433,6 @@ void create_and_add_chain()
         }
         sleep(1);
     }
-
-    // if (system(CHECK_BLOCK_IP_CHAIN_HAVE_MAC_FORWARD) != 0)
-    // {
-    //     system(IP_TABLES_ADD_CHAIN_HAVE_MAC_FORWARD);
-    //     PRINTF("Added BLOCK_IP_CHAIN_HAVE_MAC to FORWARD chain.\n");
-    //     LOG(LOG_LVL_DEBUG, "%s, %d Printf Added BLOCK_IP_CHAIN_HAVE_MAC to FORWARD chain", __func__, __LINE__);
-    // }
 
     retry = 0;
     while (system(CHECK_BLOCK_IP_CHAIN_HAVE_MAC_FORWARD) != 0)
